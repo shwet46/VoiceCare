@@ -31,5 +31,5 @@
         "**/.dart_tool/**": true,
         "**/build/**": true
     },
-    "cmake.ignoreCMakeListsMissing": true,
+    "java.configuration.updateBuildConfiguration": "interactive",
 }
