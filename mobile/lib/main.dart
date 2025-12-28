@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:voicecare/Splash.dart';
-import 'screens/auth_screen.dart';
+import 'package:voicecare/screens/Splash.dart';
 
 // Autumn Palette Constants
 const Color kPrimaryBrown = Color(0xFF834820);
@@ -39,7 +38,6 @@ class MyApp extends StatelessWidget {
       title: 'VoiceCare',
       theme: ThemeData(
         useMaterial3: true,
-        // Using the Sage Green and Burnt Orange for the color scheme
         colorScheme: ColorScheme.fromSeed(
           seedColor: kBurntOrange,
           primary: kBurntOrange,

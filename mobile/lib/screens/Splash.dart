@@ -1,8 +1,9 @@
 // import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:voicecare/WelcomeScreen.dart';
+import 'package:voicecare/screens/WelcomeScreen.dart';
 import 'package:voicecare/main.dart';
+import 'package:voicecare/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -29,12 +30,13 @@ class _SplashScreenState extends State<SplashScreen> {
 
     if (user != null) {
       // User is logged in -> Go to Home
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => const MyHomePage(title: 'VoiceCare'),
-      //   ),
-      // );
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+          // If HomeScreen is not the correct class, replace 'HomeScreen' with the actual home page widget class name.
+        ),
+      );
     } else {
       // No user -> Go to Welcome Page
       Navigator.pushReplacement(

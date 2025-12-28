@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:intl_phone_field/intl_phone_field.dart';
+import 'package:voicecare/widgets/country_code_dropdown.dart';
 import '../services/auth_service.dart';
 
 class AuthScreen extends StatefulWidget {
@@ -10,6 +10,7 @@ class AuthScreen extends StatefulWidget {
 }
 
 class _AuthScreenState extends State<AuthScreen> {
+  bool _obscurePassword = true;
   final AuthService _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
 
@@ -385,9 +386,22 @@ class _AuthScreenState extends State<AuthScreen> {
         const SizedBox(height: 16),
         TextFormField(
           controller: _passwordController,
-          obscureText: true,
+          obscureText: _obscurePassword,
           style: const TextStyle(fontFamily: customFont),
-          decoration: _inputStyle('Password', hint: 'Min. 6 characters'),
+          decoration: _inputStyle('Password', hint: 'Min. 6 characters')
+              .copyWith(
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword ? Icons.visibility_off : Icons.visibility,
+                    color: Colors.grey,
+                  ),
+                  onPressed: () {
+                    setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    });
+                  },
+                ),
+              ),
           validator: (v) => v!.length < 6 ? "Min 6 characters" : null,
         ),
       ],
@@ -404,13 +418,12 @@ class _AuthScreenState extends State<AuthScreen> {
         maxLength: 6,
       );
     }
-    return IntlPhoneField(
+    return CountryCodeDropdown(
       controller: _phoneController,
-      style: const TextStyle(fontFamily: customFont),
-      dropdownTextStyle: const TextStyle(fontFamily: customFont),
       decoration: _inputStyle('Phone Number', hint: '84XXX XXXXX'),
       initialCountryCode: 'US',
-      onChanged: (phone) => _completePhoneNumber = phone.completeNumber,
+      onChanged: (number) => _completePhoneNumber = number,
+      style: const TextStyle(fontFamily: customFont),
     );
   }
 
