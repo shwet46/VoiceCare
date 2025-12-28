@@ -177,7 +177,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Applying local Theme to force GoogleSans globally in this screen
     return Theme(
       data: Theme.of(context).copyWith(
         textTheme: Theme.of(context).textTheme.apply(fontFamily: customFont),
@@ -308,7 +307,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             : "New here? Create an account",
                         style: const TextStyle(
                           color: primaryOrange,
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w400,
                           fontFamily: customFont,
                         ),
                       ),

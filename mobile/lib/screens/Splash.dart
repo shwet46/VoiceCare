@@ -1,7 +1,8 @@
 // import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:voicecare/screens/WelcomeScreen.dart';
+import 'package:voicecare/screens/main_page.dart';
+import 'package:voicecare/screens/welcome_screen.dart';
 import 'package:voicecare/main.dart';
 import 'package:voicecare/screens/home_screen.dart';
 
@@ -33,7 +34,7 @@ class _SplashScreenState extends State<SplashScreen> {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
+          builder: (context) => const MainScreen(),
           // If HomeScreen is not the correct class, replace 'HomeScreen' with the actual home page widget class name.
         ),
       );

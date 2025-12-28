@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:voicecare/screens/WelcomeScreen.dart';
+import 'package:voicecare/screens/welcome_screen.dart';
 
 class VoiceCareAppBar extends StatelessWidget implements PreferredSizeWidget {
   const VoiceCareAppBar({super.key});
