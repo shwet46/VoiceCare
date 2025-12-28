@@ -2,116 +2,46 @@
     {
         "role": "assistant",
         "text": "Hey there, I'm Alexis from ElevenLabs support. How can I help you today?",
-        "timestamp": "2025-12-28T15:22:24.440832"
+        "timestamp": "2025-12-28T18:10:06.606558"
     },
     {
         "role": "user",
-        "text": "Hey Alexis.",
-        "timestamp": "2025-12-28T15:22:35.227984"
+        "text": "Hello.",
+        "timestamp": "2025-12-28T18:10:13.800928"
     },
     {
         "role": "assistant",
         "text": "Hello there! I'm VoiceCare Assistant, and I'm so glad you're here. To help me get to know you better, could you please tell me your name?",
-        "timestamp": "2025-12-28T15:22:35.864575"
-    },
-    {
-        "role": "user",
-        "text": "Hello there.",
-        "timestamp": "2025-12-28T15:22:37.585774"
-    },
-    {
-        "role": "assistant",
-        "text": "Hello there! I'm VoiceCare Assistant, and I'm so pleased to meet you. May I ask for your name?",
-        "timestamp": "2025-12-28T15:22:38.168655"
-    },
-    {
-        "role": "user",
-        "text": "Yeah, so...I want to talk to you...I mean you're supposed to onboard me, right?",
-        "timestamp": "2025-12-28T15:22:53.900999"
-    },
-    {
-        "role": "assistant",
-        "text": "That's right, I'm here to help you get set up with VoiceCare. To start, could you please tell me your name?",
-        "timestamp": "2025-12-28T15:22:54.209058"
+        "timestamp": "2025-12-28T18:10:14.264741"
     },
     {
         "role": "user",
         "text": "My name is Maitri.",
-        "timestamp": "2025-12-28T15:23:03.966533"
+        "timestamp": "2025-12-28T18:10:26.401783"
     },
     {
         "role": "assistant",
-        "text": "It's lovely to meet you, Maitri. Now, to help me understand how I can best assist you, could you tell me what kind of help you need most? Are you looking for reminders, emergency monitoring, or just someone to talk to?",
-        "timestamp": "2025-12-28T15:23:04.857527"
+        "text": "It's lovely to meet you, Maitri. I'm here to help make your life a little easier and safer. To start, could you tell me what kind of help you need most? Are you looking for reminders, emergency monitoring, or perhaps just someone to talk to?",
+        "timestamp": "2025-12-28T18:10:27.358083"
     },
     {
         "role": "user",
-        "text": "Maybe reminders and someone to talk to both.",
-        "timestamp": "2025-12-28T15:23:22.773516"
+        "text": "All of them.",
+        "timestamp": "2025-12-28T18:10:46.010802"
     },
     {
         "role": "assistant",
-        "text": "That's wonderful, Maitri. I can certainly help with both reminders and being a friendly voice to chat with. To ensure your safety, which is my top priority, could you please tell me who your primary emergency contact is?",
-        "timestamp": "2025-12-28T15:23:23.604389"
+        "text": "That's perfectly fine, Maitri. I can certainly help with all of those things. To ensure your safety is my top priority, could you please tell me who your primary emergency contact is? This way, I'll know who to reach out to if you ever need urgent assistance.",
+        "timestamp": "2025-12-28T18:10:46.835915"
     },
     {
         "role": "user",
-        "text": "That's wonderful.",
-        "timestamp": "2025-12-28T15:23:25.552000"
+        "text": "It will be my son.",
+        "timestamp": "2025-12-28T18:11:06.267222"
     },
     {
         "role": "assistant",
-        "text": "That's wonderful, Maitri. I can certainly help with both reminders and being a friendly voice to chat with. To ensure your safety, which is my top priority, could you please tell me who your primary emergency contact is?",
-        "timestamp": "2025-12-28T15:23:26.377739"
-    },
-    {
-        "role": "user",
-        "text": "So, can you switch your language? Like I'm not comfortable with English.",
-        "timestamp": "2025-12-28T15:23:38.892195"
-    },
-    {
-        "role": "assistant",
-        "text": "I understand, Maitri. While I can communicate in English, I am currently unable to switch to other languages. I apologize for any inconvenience this may cause.",
-        "timestamp": "2025-12-28T15:23:39.561317"
-    },
-    {
-        "role": "user",
-        "text": "I understand Maitri.",
-        "timestamp": "2025-12-28T15:23:42.375850"
-    },
-    {
-        "role": "assistant",
-        "text": "I understand, Maitri. While I can understand many languages, my primary language for speaking is English. I will do my best to speak clearly and slowly to make sure you understand everything. Is there a specific language you would prefer to speak in?",
-        "timestamp": "2025-12-28T15:23:43.104345"
-    },
-    {
-        "role": "user",
-        "text": "Can you speak in Hindi please?",
-        "timestamp": "2025-12-28T15:23:53.688613"
-    },
-    {
-        "role": "assistant",
-        "text": "I apologize, Maitri. While I can understand many languages, I am currently only able to speak in English. I will do my best to speak clearly and slowly to make sure you understand everything. Is there anything else I can help you with in English?",
-        "timestamp": "2025-12-28T15:23:54.590727"
-    },
-    {
-        "role": "user",
-        "text": "I apologize Maitri.",
-        "timestamp": "2025-12-28T15:23:57.290835"
-    },
-    {
-        "role": "assistant",
-        "text": "I apologize, Maitri, but I am only able to communicate in English at this time. I will do my best to speak clearly and slowly to make sure you understand. Is there anything else I can help you with in English?",
-        "timestamp": "2025-12-28T15:23:57.966379"
-    },
-    {
-        "role": "user",
-        "text": "Pardon me?",
-        "timestamp": "2025-12-28T15:23:59.979672"
-    },
-    {
-        "role": "assistant",
-        "text": "I apologize, Maitri, but I am currently only able to communicate in English. I understand this might be an inconvenience, and I'm truly sorry for that. I will do my best to speak as clearly and simply as possible to make our conversation easier for you.",
-        "timestamp": "2025-12-28T15:24:00.777783"
+        "text": "Thank you, Maitri. Knowing your son is your primary emergency contact is very helpful. I also want to let you know that I can call you for medicine reminders, which can be a great way to stay on track with your health.",
+        "timestamp": "2025-12-28T18:11:06.946761"
     }
 ]
