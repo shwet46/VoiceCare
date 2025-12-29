@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:voicecare/screens/splash.dart';
+import 'package:voicecare/screens/onboarding_form_page.dart';
+import 'package:voicecare/screens/home_screen.dart';
 
 // Autumn Palette Constants
 const Color kPrimaryBrown = Color(0xFF834820);
@@ -44,10 +45,7 @@ class MyApp extends StatelessWidget {
           secondary: kMustardGold,
           surface: Colors.white,
         ),
-        scaffoldBackgroundColor: const Color(
-          0xFFFDFCFB,
-        ), // Off-white for warmth
-        // Consistent Text Styling
+        scaffoldBackgroundColor: const Color(0xFFFDFCFB),
         textTheme: const TextTheme(
           headlineSmall: TextStyle(
             color: kPrimaryBrown,
@@ -55,8 +53,6 @@ class MyApp extends StatelessWidget {
           ),
           bodyMedium: TextStyle(color: kPrimaryBrown),
         ),
-
-        // Modern Input Styling for AuthScreen and elsewhere
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: Colors.white,
@@ -73,8 +69,6 @@ class MyApp extends StatelessWidget {
             borderSide: const BorderSide(color: kBurntOrange, width: 2),
           ),
         ),
-
-        // Customizing Button Styles
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: kBurntOrange,
@@ -86,6 +80,10 @@ class MyApp extends StatelessWidget {
         ),
       ),
       home: const SplashScreen(),
+      routes: {
+        '/onboarding': (_) => const OnboardingFormPage(),
+        '/home': (_) => const HomeScreen(),
+      },
     );
   }
 }
