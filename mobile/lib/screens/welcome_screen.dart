@@ -1,6 +1,7 @@
 import 'package:blobs/blobs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:voicecare/screens/home_screen.dart';
+import 'package:voicecare/screens/main_page.dart';
+import 'package:voicecare/services/profile_service.dart';
 import 'package:flutter/material.dart';
 import 'package:voicecare/screens/auth_page.dart';
 
@@ -13,30 +14,60 @@ class WelcomeScreen extends StatefulWidget {
 
 class _WelcomeScreenState extends State<WelcomeScreen> {
   bool isLoading = false;
-  User? _user;
+  User? user;
 
   @override
   void initState() {
     super.initState();
-    _user = FirebaseAuth.instance.currentUser;
-    if (_user != null) {
-      // If user is logged in, redirect to HomeScreen
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+    user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      // If user is logged in, always redirect to main or onboarding
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        final profile = await ProfileService().fetchUserProfile();
+        final isComplete =
+            profile != null &&
+            [
+              profile.fullName,
+              profile.allergies,
+              profile.medications,
+              profile.carePreferences,
+              profile.healthConcerns,
+            ].every((e) => e != null && e.trim().isNotEmpty);
+        if (!mounted) return;
+        if (!isComplete) {
+          Navigator.pushReplacementNamed(context, '/onboarding');
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        }
       });
     }
-    FirebaseAuth.instance.authStateChanges().listen((user) {
-      if (user != null && mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+    FirebaseAuth.instance.authStateChanges().listen((userParam) async {
+      if (userParam != null && mounted) {
+        final profile = await ProfileService().fetchUserProfile();
+        final isComplete =
+            profile != null &&
+            [
+              profile.fullName,
+              profile.allergies,
+              profile.medications,
+              profile.carePreferences,
+              profile.healthConcerns,
+            ].every((e) => e != null && e.trim().isNotEmpty);
+        if (!mounted) return;
+        if (!isComplete) {
+          Navigator.pushReplacementNamed(context, '/onboarding');
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const MainScreen()),
+          );
+        }
       }
       setState(() {
-        _user = user;
+        user = userParam;
       });
     });
   }
@@ -57,7 +88,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
     if (isLoading) {
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
-    if (_user != null) {
+    if (user != null) {
       // While redirecting, show a loading indicator
       return const Scaffold(body: Center(child: CircularProgressIndicator()));
     }
