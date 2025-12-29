@@ -2,7 +2,8 @@ import 'package:blobs/blobs.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:voicecare/screens/home_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:voicecare/screens/auth_page.dart';
+import 'package:voicecare/screens/auth_screen.dart';
+import 'package:voicecare/screens/setup_screen.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -48,7 +49,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void handleGetStarted() {
     Navigator.push(
       context,
-      MaterialPageRoute(builder: (context) => const AuthScreen()),
+      // MaterialPageRoute(builder: (context) => const AuthScreen()),
+      MaterialPageRoute(builder: (context) => const SetupScreen()),
     );
   }
 

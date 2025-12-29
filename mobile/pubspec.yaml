@@ -20,6 +20,11 @@ dependencies:
   intl_phone_field: ^3.2.0
   blobs: ^2.0.0
   flutter_svg: ^2.2.3
+  elevenlabs_agents: ^0.3.0
+  livekit_client: ^2.6.0
+  permission_handler: ^12.0.1
+  http: ^1.6.0
+  audio_waveforms: ^1.0.4
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +38,7 @@ flutter:
     - .env
     - assets/ 
     - assets/icons/
+    - assets/images/
   
   fonts:
     - family: GoogleSans

@@ -23,10 +23,17 @@ def get_voice_session():
     """Provides a secure, temporary URL for the Flutter app to start the agent call."""
     try:
         # Generates a signed WebSocket URL valid for 15 minutes
-        signed_url = el_client.conversational_ai.conversations.get_signed_url(
+        response = el_client.conversational_ai.conversations.get_signed_url(
             agent_id=AGENT_ID
         )
-        return jsonify({"signed_url": signed_url})
+        # return jsonify({"signed_url": signed_url})
+        print(f"✅ SUCCESS: Generated signed URL")
+        url_string = response.signed_url
+        
+        print(f"✅ SUCCESS: Extracted URL: {url_string}")
+        
+        # 3. Return the string, which IS JSON serializable
+        return jsonify({"signed_url": url_string})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
