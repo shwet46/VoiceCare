@@ -2,9 +2,9 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:voicecare/screens/main_page.dart';
+import 'package:voicecare/services/profile_service.dart';
 import 'package:voicecare/screens/welcome_screen.dart';
 import 'package:voicecare/main.dart';
-import 'package:voicecare/screens/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -30,14 +30,25 @@ class _SplashScreenState extends State<SplashScreen> {
     if (!mounted) return;
 
     if (user != null) {
-      // User is logged in -> Go to Home
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const MainScreen(),
-          // If HomeScreen is not the correct class, replace 'HomeScreen' with the actual home page widget class name.
-        ),
-      );
+      // Check if user profile is complete
+      final profile = await ProfileService().fetchUserProfile();
+      final isComplete =
+          profile != null &&
+          [
+            profile.fullName,
+            profile.allergies,
+            profile.medications,
+            profile.carePreferences,
+            profile.healthConcerns,
+          ].every((e) => e != null && e.trim().isNotEmpty);
+      if (!isComplete) {
+        Navigator.pushReplacementNamed(context, '/onboarding');
+      } else {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const MainScreen()),
+        );
+      }
     } else {
       // No user -> Go to Welcome Page
       Navigator.pushReplacement(

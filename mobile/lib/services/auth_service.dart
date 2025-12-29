@@ -1,24 +1,26 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  // Getter for the current user
+
+  Stream<User?> get authStateChanges => _auth.authStateChanges();
+
   User? get currentUser => _auth.currentUser;
 
-  // Static method to ensure dotenv is loaded before the app starts
   static Future<void> initEnv() async {
     try {
       await dotenv.load(fileName: ".env");
     } catch (e) {
-      print("Error loading .env file: $e");
+      debugPrint("Error loading .env file: $e");
     }
   }
 
   // --- EMAIL FLOW ---
 
-  Future<UserCredential> signUpWithEmail(
+  Future<User?> signUpWithEmail(
     String email,
     String password,
     String name,
@@ -29,14 +31,16 @@ class AuthService {
         password: password,
       );
 
-      // IMPORTANT: Update display name immediately after registration
-      await result.user?.updateDisplayName(name);
-      await result.user?.reload(); 
-
-      return result;
+      if (result.user != null) {
+        await result.user!.updateDisplayName(name);
+        await result.user!.reload();  // Return the updated user from instance, not the stale result
+        return _auth.currentUser;
+      }
+      return result.user;
     } on FirebaseAuthException catch (e) {
-      // Catch specific Firebase errors for better debugging
       throw _handleAuthError(e);
+    } catch (e) {
+      throw 'An unexpected error occurred';
     }
   }
 
@@ -51,7 +55,6 @@ class AuthService {
     }
   }
 
-  // --- PHONE FLOW ---
 
   Future<void> verifyPhoneNumber(
     String phoneNumber, {
@@ -60,16 +63,21 @@ class AuthService {
     required Function(String, int?) onCodeSent,
     required Function(String) onTimeout,
   }) async {
-    await _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: onCompleted,
-      verificationFailed: onFailed,
-      codeSent: onCodeSent,
-      codeAutoRetrievalTimeout: onTimeout,
-    );
+    try {
+      await _auth.verifyPhoneNumber(
+        phoneNumber: phoneNumber,
+        verificationCompleted: onCompleted,
+        verificationFailed: onFailed,
+        codeSent: onCodeSent,
+        codeAutoRetrievalTimeout: onTimeout,
+        timeout: const Duration(seconds: 60),
+      );
+    } catch (e) {
+      debugPrint("Phone Verification Error: $e");
+    }
   }
 
-  Future<UserCredential> signInWithOtp(
+  Future<User?> signInWithOtp(
     String verificationId,
     String smsCode, [
     String? name,
@@ -82,13 +90,12 @@ class AuthService {
 
       UserCredential result = await _auth.signInWithCredential(credential);
 
-      // Update name if this is a new phone user
       if (name != null && name.isNotEmpty && result.user != null) {
         await result.user!.updateDisplayName(name);
         await result.user!.reload();
       }
 
-      return result;
+      return _auth.currentUser;
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     }
@@ -98,14 +105,26 @@ class AuthService {
     await _auth.signOut();
   }
 
-  // Helper method to make sense of Firebase errors
+
   String _handleAuthError(FirebaseAuthException e) {
+    debugPrint("Firebase Auth Error: ${e.code} - ${e.message}");
     switch (e.code) {
-      case 'user-not-found': return 'No user found for that email.';
-      case 'wrong-password': return 'Wrong password provided.';
-      case 'email-already-in-use': return 'Account already exists for this email.';
-      case 'invalid-phone-number': return 'The phone number is not valid.';
-      default: return e.message ?? 'An unknown error occurred.';
+      case 'user-not-found':
+      case 'wrong-password':
+      case 'invalid-credential':
+        return 'Invalid email or password.';
+      case 'email-already-in-use':
+        return 'An account already exists for this email.';
+      case 'invalid-email':
+        return 'The email address is badly formatted.';
+      case 'weak-password':
+        return 'The password is too weak.';
+      case 'invalid-phone-number':
+        return 'The phone number is not valid.';
+      case 'too-many-requests':
+        return 'Too many attempts. Try again later.';
+      default:
+        return e.message ?? 'Authentication failed.';
     }
   }
 }
