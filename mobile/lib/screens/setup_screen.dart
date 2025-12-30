@@ -1,11 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:elevenlabs_agents/elevenlabs_agents.dart';
 import 'package:http/http.dart' as http;
 import 'package:permission_handler/permission_handler.dart';
 import 'package:voicecare/screens/main_page.dart';
+import 'package:voicecare/utils/constants.dart';
+import 'package:voicecare/widgets/voicecare_header.dart';
 
 class SetupScreen extends StatefulWidget {
   const SetupScreen({super.key});
@@ -23,9 +24,6 @@ class _SetupScreenState extends State<SetupScreen>
   // Animation controllers for UI effects
   late AnimationController _pulseController;
   late AnimationController _waveController;
-
-  static const Color primaryOrange = Color(0xFFDE9243);
-  static const Color darkOrange = Color(0xFFC4561D);
   static const String customFont = 'GoogleSans';
 
   bool _isStarting = false;
@@ -170,45 +168,6 @@ class _SetupScreenState extends State<SetupScreen>
     });
   }
 
-  Widget _buildHeader() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: const [
-            Text(
-              'Voice',
-              style: TextStyle(
-                fontSize: 32,
-                color: primaryOrange,
-                fontWeight: FontWeight.w400,
-                fontFamily: customFont,
-              ),
-            ),
-            Text(
-              'Care',
-              style: TextStyle(
-                fontSize: 32,
-                color: darkOrange,
-                fontWeight: FontWeight.w400,
-                fontFamily: customFont,
-              ),
-            ),
-          ],
-        ),
-        const Text(
-          'Your digital friend, day and night.',
-          style: TextStyle(
-            fontSize: 15,
-            color: Color.fromARGB(255, 255, 255, 255),
-            fontFamily: customFont,
-            height: 1,
-          ),
-        ),
-      ],
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isConnected = _client.status == ConversationStatus.connected;
@@ -243,13 +202,11 @@ class _SetupScreenState extends State<SetupScreen>
 
           SafeArea(
             child: Column(
-              // Change this to .start to align Header, Greeting, and Transcript to the left
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // 2. Branding Header - Aligned Start
                 Padding(
                   padding: const EdgeInsets.fromLTRB(30, 30, 30, 0),
-                  child: _buildHeader(),
+                  child: VoiceCareHeader(),
                 ),
 
                 const SizedBox(height: 20),
@@ -429,7 +386,9 @@ class _SetupScreenState extends State<SetupScreen>
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     border: Border.all(
-                      color: _isStarting ? primaryOrange : Colors.white24,
+                      color: _isStarting
+                          ? Constants.primaryOrange
+                          : Colors.white24,
                       width: 1,
                     ),
                     color: Colors.black26,
@@ -441,7 +400,7 @@ class _SetupScreenState extends State<SetupScreen>
                         ? const CircularProgressIndicator(
                             strokeWidth: 2,
                             valueColor: AlwaysStoppedAnimation<Color>(
-                              primaryOrange,
+                              Constants.primaryOrange,
                             ),
                           )
                         : Icon(

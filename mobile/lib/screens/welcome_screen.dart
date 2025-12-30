@@ -80,8 +80,8 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
   void handleGetStarted() {
     Navigator.push(
       context,
-      // MaterialPageRoute(builder: (context) => const AuthScreen()),
-      MaterialPageRoute(builder: (context) => const SetupScreen()),
+      MaterialPageRoute(builder: (context) => const AuthScreen()),
+      // MaterialPageRoute(builder: (context) => const SetupScreen()),
     );
   }
 
