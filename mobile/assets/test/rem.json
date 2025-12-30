@@ -1,0 +1,67 @@
+{
+  "user_name": "Shweta",
+  "date": "Tuesday, Dec 30",
+  "completion_stats": "2 of 6 completed",
+  "reminders": [
+    {
+      "id": "001",
+      "time": "08:00 AM",
+      "title": "Blood Pressure Meds",
+      "subtitle": "1 tablet with water",
+      "type": "medication",
+      "status": "completed",
+      "priority": "high",
+      "icon": "medication_outlined"
+    },
+    {
+      "id": "002",
+      "time": "10:30 AM",
+      "title": "Morning Stretching",
+      "subtitle": "5 min shoulder & neck rolls",
+      "type": "activity",
+      "status": "completed",
+      "priority": "low",
+      "icon": "self_improvement"
+    },
+    {
+      "id": "003",
+      "time": "01:00 PM",
+      "title": "Lunch Multivitamin",
+      "subtitle": "Take after eating",
+      "type": "medication",
+      "status": "active",
+      "priority": "medium",
+      "icon": "pill"
+    },
+    {
+      "id": "004",
+      "time": "03:00 PM",
+      "title": "Social Call: Son",
+      "subtitle": "Weekly catch-up",
+      "type": "social",
+      "status": "pending",
+      "priority": "medium",
+      "icon": "phone_callback"
+    },
+    {
+      "id": "005",
+      "time": "08:00 PM",
+      "title": "Diabetes Check",
+      "subtitle": "Check levels & insulin",
+      "type": "medication",
+      "status": "pending",
+      "priority": "high",
+      "icon": "biotech"
+    },
+    {
+      "id": "006",
+      "time": "09:30 PM",
+      "title": "Sleep Meditation",
+      "subtitle": "Calming voice guide",
+      "type": "activity",
+      "status": "pending",
+      "priority": "low",
+      "icon": "bedtime"
+    }
+  ]
+}

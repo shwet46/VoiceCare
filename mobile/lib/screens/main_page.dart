@@ -3,6 +3,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:voicecare/widgets/voicecare_app_bar.dart';
 import 'package:voicecare/screens/sos_page.dart';
 import 'package:voicecare/screens/profile_page.dart';
+import 'package:voicecare/screens/home_screen.dart';
+import 'package:voicecare/screens/call_log_screen.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -15,10 +17,10 @@ class _MainScreenState extends State<MainScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _pages = const [
-    Center(child: Text("Home Content", style: TextStyle(fontSize: 24))),
+    HomeScreen(),
     SosPage(),
     Center(child: Text("AI Call Content", style: TextStyle(fontSize: 24))),
-    Center(child: Text("Logs Content", style: TextStyle(fontSize: 24))),
+    CallLogScreen(),
     ProfilePage(),
   ];
 
@@ -26,10 +28,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: const VoiceCareAppBar(),
-      body: IndexedStack(
-        index: _currentIndex,
-        children: _pages,
-      ),
+      body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: _buildBottomBar(),
     );
   }
@@ -52,23 +51,16 @@ class _MainScreenState extends State<MainScreen> {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(40),
-                border: Border.all(
-                  color: const Color(0xFFD98E39),
-                  width: 1.6,
-                ),
+                border: Border.all(color: const Color(0xFFD98E39), width: 1.6),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildNavItem(
-                      'assets/icons/home.svg', 'Home', 0),
-                  _buildNavItem(
-                      'assets/icons/multi-users.svg', 'SOS', 1),
+                  _buildNavItem('assets/icons/home.svg', 'Home', 0),
+                  _buildNavItem('assets/icons/multi-users.svg', 'SOS', 1),
                   const SizedBox(width: 80), // space for circle
-                  _buildNavItem(
-                      'assets/icons/phone1.svg', 'Logs', 3),
-                  _buildNavItem(
-                      'assets/icons/user.svg', 'Profile', 4),
+                  _buildNavItem('assets/icons/phone1.svg', 'Logs', 3),
+                  _buildNavItem('assets/icons/user.svg', 'Profile', 4),
                 ],
               ),
             ),
@@ -77,8 +69,7 @@ class _MainScreenState extends State<MainScreen> {
             Positioned(
               top: 10,
               child: GestureDetector(
-                onTap: () =>
-                    setState(() => _currentIndex = 2),
+                onTap: () => setState(() => _currentIndex = 2),
                 child: Container(
                   width: 100,
                   height: 100,
@@ -130,8 +121,7 @@ class _MainScreenState extends State<MainScreen> {
 
   // ---------------- NAV ITEM ----------------
 
-  Widget _buildNavItem(
-      String iconPath, String label, int index) {
+  Widget _buildNavItem(String iconPath, String label, int index) {
     final bool isSelected = _currentIndex == index;
 
     return GestureDetector(
@@ -143,11 +133,8 @@ class _MainScreenState extends State<MainScreen> {
           SvgPicture.asset(
             iconPath,
             height: 22,
-            color: isSelected
-                ? const Color(0xFFE85D32)
-                : Colors.grey,
-            placeholderBuilder: (_) =>
-                const Icon(Icons.error, size: 22),
+            color: isSelected ? const Color(0xFFE85D32) : Colors.grey,
+            placeholderBuilder: (_) => const Icon(Icons.error, size: 22),
           ),
           const SizedBox(height: 4),
           Text(
@@ -155,12 +142,8 @@ class _MainScreenState extends State<MainScreen> {
             style: TextStyle(
               fontSize: 11,
               fontFamily: 'GoogleSans',
-              color: isSelected
-                  ? const Color(0xFFE85D32)
-                  : Colors.black54,
-              fontWeight: isSelected
-                  ? FontWeight.w600
-                  : FontWeight.w400,
+              color: isSelected ? const Color(0xFFE85D32) : Colors.black54,
+              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
             ),
           ),
         ],

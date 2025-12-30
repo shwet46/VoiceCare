@@ -39,19 +39,21 @@ class MyApp extends StatelessWidget {
       title: 'VoiceCare',
       theme: ThemeData(
         useMaterial3: true,
+        fontFamily: 'GoogleSans',
         colorScheme: ColorScheme.fromSeed(
           seedColor: kBurntOrange,
           primary: kBurntOrange,
           secondary: kMustardGold,
-          surface: Colors.white,
+          surface: Color(0xFFF2E9E9),
         ),
-        scaffoldBackgroundColor: const Color(0xFFFDFCFB),
+        scaffoldBackgroundColor: const Color(0xFFF2E9E9),
         textTheme: const TextTheme(
           headlineSmall: TextStyle(
             color: kPrimaryBrown,
             fontWeight: FontWeight.bold,
+            fontFamily: 'GoogleSans',
           ),
-          bodyMedium: TextStyle(color: kPrimaryBrown),
+          bodyMedium: TextStyle(color: kPrimaryBrown, fontFamily: 'GoogleSans'),
         ),
         inputDecorationTheme: InputDecorationTheme(
           filled: true,

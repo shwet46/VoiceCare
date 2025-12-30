@@ -61,13 +61,11 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
+      backgroundColor: const Color(0xFFF2E9E9),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // const Icon(Icons.graphic_eq_rounded, size: 80, color: Colors.white),
-            // const SizedBox(height: 24),
             const Text(
               'VoiceCare',
               style: TextStyle(
@@ -79,7 +77,10 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
             ),
             const SizedBox(height: 10),
-            CircularProgressIndicator(color: kMustardGold.withOpacity(0.8)),
+            CircularProgressIndicator(
+              color: kMustardGold.withOpacity(0.8),
+              backgroundColor: Color(0xFFF2E9E9),
+            ),
           ],
         ),
       ),
