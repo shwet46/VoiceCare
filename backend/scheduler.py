@@ -3,7 +3,7 @@ scheduler.py - Background Scheduler
 """
 from config import db
 from datetime import datetime, timezone
-from google.cloud import firestore_v1 as firestore
+from google.cloud import firestore
 
 def check_and_trigger_calls():
     try:
