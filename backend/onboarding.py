@@ -5,31 +5,8 @@ Processes onboarding transcripts and extracts medical profiles using Gemini 2.0
 
 import json
 from config import db, get_gemini_model
-from pydantic import BaseModel, Field
-from typing import List, Optional
+from models.onboarding import SeniorProfile, OnboardingCall
 from google.cloud import firestore
-
-
-class SeniorProfile(BaseModel):
-    """Structured profile extracted from onboarding conversation"""
-    full_name: Optional[str] = Field(
-        default=None, description="The senior citizen's full name"
-    )
-    emergency_contact: Optional[str] = Field(
-        default=None, description="Name of the emergency contact person"
-    )
-    emergency_phone: Optional[str] = Field(
-        default=None, description="Phone number of the emergency contact"
-    )
-    allergies: List[str] = Field(
-        default_factory=list, description="List of any reported allergies"
-    )
-    medications: List[str] = Field(
-        default_factory=list, description="List of current medications"
-    )
-    health_concerns: List[str] = Field(
-        default_factory=list, description="Any specific health or safety concerns"
-    )
 
 
 def process_onboarding_transcript(transcript_log, user_id):
