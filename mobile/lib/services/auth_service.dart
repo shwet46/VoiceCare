@@ -5,9 +5,7 @@ import 'package:flutter/foundation.dart';
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-
   Stream<User?> get authStateChanges => _auth.authStateChanges();
-
   User? get currentUser => _auth.currentUser;
 
   static Future<void> initEnv() async {
@@ -18,43 +16,7 @@ class AuthService {
     }
   }
 
-  // --- EMAIL FLOW ---
-
-  Future<User?> signUpWithEmail(
-    String email,
-    String password,
-    String name,
-  ) async {
-    try {
-      UserCredential result = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      if (result.user != null) {
-        await result.user!.updateDisplayName(name);
-        await result.user!.reload();  // Return the updated user from instance, not the stale result
-        return _auth.currentUser;
-      }
-      return result.user;
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthError(e);
-    } catch (e) {
-      throw 'An unexpected error occurred';
-    }
-  }
-
-  Future<UserCredential> signInWithEmail(String email, String password) async {
-    try {
-      return await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-    } on FirebaseAuthException catch (e) {
-      throw _handleAuthError(e);
-    }
-  }
-
+  // --- PHONE AUTH FLOW ---
 
   Future<void> verifyPhoneNumber(
     String phoneNumber, {
@@ -64,24 +26,41 @@ class AuthService {
     required Function(String) onTimeout,
   }) async {
     try {
+      // PRODUCTION CHANGE: Enforce real app verification.
+      // This ensures reCAPTCHA (Web/iOS) or Play Integrity (Android) is used.
+      await _auth.setSettings(appVerificationDisabledForTesting: false);
+
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
-        verificationCompleted: onCompleted,
-        verificationFailed: onFailed,
-        codeSent: onCodeSent,
-        codeAutoRetrievalTimeout: onTimeout,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          // On some Android devices, the SMS is automatically detected.
+          // We sign the user in immediately.
+          await _auth.signInWithCredential(credential);
+          await onCompleted(credential);
+        },
+        verificationFailed: (FirebaseAuthException e) {
+          // PRODUCTION LOGGING: Avoid printing sensitive info to console in release
+          if (kDebugMode) debugPrint("Phone Verification Failed: ${e.code}");
+          onFailed(e);
+        },
+        codeSent: (String verificationId, int? resendToken) {
+          onCodeSent(verificationId, resendToken);
+        },
+        codeAutoRetrievalTimeout: (String verificationId) {
+          onTimeout(verificationId);
+        },
         timeout: const Duration(seconds: 60),
       );
     } catch (e) {
-      debugPrint("Phone Verification Error: $e");
+      rethrow;
     }
   }
 
-  Future<User?> signInWithOtp(
-    String verificationId,
-    String smsCode, [
+  Future<User?> signInWithOtp({
+    required String verificationId,
+    required String smsCode,
     String? name,
-  ]) async {
+  }) async {
     try {
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: verificationId,
@@ -90,12 +69,43 @@ class AuthService {
 
       UserCredential result = await _auth.signInWithCredential(credential);
 
-      if (name != null && name.isNotEmpty && result.user != null) {
-        await result.user!.updateDisplayName(name);
+      // Update profile only if user is new or name is provided
+      if (name != null && name.trim().isNotEmpty && result.user != null) {
+        await result.user!.updateDisplayName(name.trim());
         await result.user!.reload();
       }
 
       return _auth.currentUser;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    }
+  }
+
+
+
+  Future<User?> signUpWithEmail(String email, String password, String name) async {
+    try {
+      UserCredential result = await _auth.createUserWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
+
+      if (result.user != null) {
+        await result.user!.updateDisplayName(name.trim());
+        await result.user!.reload();
+      }
+      return _auth.currentUser;
+    } on FirebaseAuthException catch (e) {
+      throw _handleAuthError(e);
+    }
+  }
+
+  Future<UserCredential> signInWithEmail(String email, String password) async {
+    try {
+      return await _auth.signInWithEmailAndPassword(
+        email: email.trim(),
+        password: password,
+      );
     } on FirebaseAuthException catch (e) {
       throw _handleAuthError(e);
     }
@@ -106,25 +116,28 @@ class AuthService {
   }
 
 
+
   String _handleAuthError(FirebaseAuthException e) {
-    debugPrint("Firebase Auth Error: ${e.code} - ${e.message}");
+    // Log errors to a service like Crashlytics here in production
     switch (e.code) {
       case 'user-not-found':
       case 'wrong-password':
       case 'invalid-credential':
-        return 'Invalid email or password.';
+        return 'The email or password you entered is incorrect.';
       case 'email-already-in-use':
-        return 'An account already exists for this email.';
-      case 'invalid-email':
-        return 'The email address is badly formatted.';
-      case 'weak-password':
-        return 'The password is too weak.';
+        return 'This email address is already registered.';
       case 'invalid-phone-number':
-        return 'The phone number is not valid.';
+        return 'The phone number entered is invalid.';
       case 'too-many-requests':
-        return 'Too many attempts. Try again later.';
+        return 'Too many attempts. Please try again in a few minutes.';
+      case 'session-expired':
+        return 'The verification session has expired. Please try again.';
+      case 'invalid-verification-code':
+        return 'The SMS code entered is incorrect.';
+      case 'app-not-authorized':
+        return 'App integrity check failed. Please ensure the app is installed from the official store.';
       default:
-        return e.message ?? 'Authentication failed.';
+        return 'An authentication error occurred. Please try again.';
     }
   }
 }
