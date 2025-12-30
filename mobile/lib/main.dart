@@ -1,5 +1,10 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_callkit_incoming/entities/android_params.dart';
+import 'package:flutter_callkit_incoming/entities/call_event.dart';
+import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
+import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:voicecare/screens/splash.dart';
 import 'package:voicecare/screens/onboarding_form_page.dart';
@@ -11,6 +16,44 @@ const Color kBurntOrange = Color(0xFFBF4E1E);
 const Color kMustardGold = Color(0xFFDD9239);
 const Color kSageGreen = Color(0xFFB0D0BF);
 const Color kOliveGreen = Color(0xFF929D65);
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
+  // If the message contains call data, show the CallKit UI
+  if (message.data['type'] == 'incoming_call') {
+    showCallkitIncoming(message.data);
+  }
+}
+
+Future<void> showCallkitIncoming(Map<String, dynamic> data) async {
+  final params = CallKitParams(
+    id: data['id'] ?? 'default_id',
+    nameCaller: data['nameCaller'] ?? 'Max Verstappan',
+    appName: 'VoiceCare',
+    avatar:
+        'https://cdn-9.motorsport.com/images/mgl/6D1XbeV0/s800/max-verstappen-red-bull-racing.jpg', // Optional: Replace with your AI icon
+    handle: data['handle'] ?? 'Voice Session',
+    type: 0, // 0 for Audio, 1 for Video
+    duration: 30000, // 30 seconds
+    textAccept: 'Accept',
+    textDecline: 'Decline',
+    // missedCallBadgeCount: 1,
+    extra: <String, dynamic>{'userId': '1234'},
+    headers: <String, dynamic>{'apiKey': 'Abc@123!', 'platform': 'flutter'},
+    android: const AndroidParams(
+      isCustomNotification: true,
+      isShowFullLockedScreen: true,
+      ringtonePath: 'system_ringtone_default',
+      backgroundColor: '#BF4E1E', // Matching your kBurntOrange
+      backgroundUrl:
+          'https://cdn-9.motorsport.com/images/mgl/6D1XbeV0/s800/max-verstappen-red-bull-racing.jpg',
+      actionColor: '#BF4E1E',
+      incomingCallNotificationChannelName: 'Incoming Call',
+      missedCallNotificationChannelName: 'Missed Call',
+    ),
+  );
+
+  await FlutterCallkitIncoming.showCallkitIncoming(params);
+}
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -26,11 +69,30 @@ void main() async {
     ),
   );
 
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
   runApp(const MyApp());
 }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
   const MyApp({super.key});
+
+  @override
+  State<MyApp> createState() => _MyAppState();
+}
+
+class _MyAppState extends State<MyApp> {
+  @override
+  void initState() {
+    super.initState();
+
+    // Listen for messages while the app is in the FOREGROUND
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      if (message.data['type'] == 'incoming_call') {
+        showCallkitIncoming(message.data);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -89,3 +151,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+// }
