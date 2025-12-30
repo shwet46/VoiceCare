@@ -103,7 +103,6 @@ class _AuthScreenState extends State<AuthScreen> {
         await _authService.verifyPhoneNumber(
           _completePhoneNumber,
           onCompleted: (credential) async {
-            // Optional: Handle auto-verification on Android
           },
           onFailed: (e) => _setStatus(e.message ?? "Verification failed"),
           onCodeSent: (id, _) => setState(() {
@@ -125,9 +124,9 @@ class _AuthScreenState extends State<AuthScreen> {
       _setStatus('', loading: true);
       try {
         await _authService.signInWithOtp(
-          _verId!,
-          _otpController.text.trim(),
-          _isRegistering ? _nameController.text.trim() : null,
+          verificationId: _verId!,
+          smsCode: _otpController.text.trim(),
+          name: _isRegistering ? _nameController.text.trim() : null,
         );
         if (_isRegistering) {
           _navigateToOnboarding();
