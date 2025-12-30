@@ -17,7 +17,7 @@ class _CallLogScreenState extends State<CallLogScreen> {
 
   // THEME COLORS (consistent with app)
   static const Color primaryOrange = Color(0xFFE85D32);
-  static const Color bgColor = Color(0xFFF9FAFB);
+  static const Color bgColor = Color.fromARGB(255, 255, 255, 255);
   static const Color cardColor = Colors.white;
 
   @override
@@ -42,12 +42,6 @@ class _CallLogScreenState extends State<CallLogScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgColor,
-      appBar: AppBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        title: null,
-      ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator(color: primaryOrange))
           : callLogData == null
