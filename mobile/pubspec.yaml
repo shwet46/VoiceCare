@@ -26,6 +26,7 @@ dependencies:
   http: ^1.6.0
   audio_waveforms: ^1.0.4
   flutter_contacts: ^1.1.9+2
+  intl: ^0.20.2
 
 dev_dependencies:
   flutter_test:

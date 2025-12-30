@@ -1,67 +1,43 @@
+
+
 {
-  "user_name": "Shweta",
-  "date": "Tuesday, Dec 30",
-  "completion_stats": "2 of 6 completed",
-  "reminders": [
+  "user_id": "senior_user_99",
+  "call_id": "call_vce_001",
+  "reminder_details": {
+    "reminder_id": "rem_med_888",
+    "category": "medication",
+    "title": "Evening Blood Pressure Medication",
+    "medication_name": "Amlodipine",
+    "dosage": "5mg",
+    "scheduled_time": "2025-12-30T20:00:00Z",
+    "is_recurring": true
+  },
+  "outcome": {
+    "call_status": "answered",
+    "action_status": "completed",
+    "is_rescheduled": true,
+    "rescheduled_from_time": "2025-12-30T19:45:00Z",
+    "user_reasoning": "User was finishing dinner during the first call at 7:45 PM.",
+    "attempts_made": 2
+  },
+  "transcript": [
     {
-      "id": "001",
-      "time": "08:00 AM",
-      "title": "Blood Pressure Meds",
-      "subtitle": "1 tablet with water",
-      "type": "medication",
-      "status": "completed",
-      "priority": "high",
-      "icon": "medication_outlined"
+      "role": "agent",
+      "text": "Hello Mr. Gupta, it's VoiceCare. I'm calling to check if you've taken your Amlodipine pill yet?"
     },
     {
-      "id": "002",
-      "time": "10:30 AM",
-      "title": "Morning Stretching",
-      "subtitle": "5 min shoulder & neck rolls",
-      "type": "activity",
-      "status": "completed",
-      "priority": "low",
-      "icon": "self_improvement"
+      "role": "user",
+      "text": "Yes, I just took it with a glass of water."
     },
     {
-      "id": "003",
-      "time": "01:00 PM",
-      "title": "Lunch Multivitamin",
-      "subtitle": "Take after eating",
-      "type": "medication",
-      "status": "active",
-      "priority": "medium",
-      "icon": "pill"
-    },
-    {
-      "id": "004",
-      "time": "03:00 PM",
-      "title": "Social Call: Son",
-      "subtitle": "Weekly catch-up",
-      "type": "social",
-      "status": "pending",
-      "priority": "medium",
-      "icon": "phone_callback"
-    },
-    {
-      "id": "005",
-      "time": "08:00 PM",
-      "title": "Diabetes Check",
-      "subtitle": "Check levels & insulin",
-      "type": "medication",
-      "status": "pending",
-      "priority": "high",
-      "icon": "biotech"
-    },
-    {
-      "id": "006",
-      "time": "09:30 PM",
-      "title": "Sleep Meditation",
-      "subtitle": "Calming voice guide",
-      "type": "activity",
-      "status": "pending",
-      "priority": "low",
-      "icon": "bedtime"
+      "role": "agent",
+      "text": "That's great to hear. I've logged that for you. Have a wonderful evening!"
     }
-  ]
+  ],
+  "meta": {
+    "started_at": "2025-12-30T20:00:05Z",
+    "ended_at": "2025-12-30T20:00:45Z",
+    "call_duration_seconds": 40,
+    "voice_id": "eleven_labs_gentle_caregiver_id"
+  }
 }
