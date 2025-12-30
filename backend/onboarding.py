@@ -4,29 +4,22 @@ Processes onboarding transcripts and extracts medical profiles using Gemini 2.0
 """
 
 import json
-from config import db, get_gemini_model
-from models.onboarding import SeniorProfile, OnboardingCall
+from config import db, get_gemini_client
+from models.onboarding import SeniorProfile
 from google.cloud import firestore
-
 
 def process_onboarding_transcript(transcript_log, user_id):
     """
     Uses Gemini 2.0 to extract structured medical profile from onboarding transcript.
-    Saves extracted data to Firestore.
-    
-    Args:
-        transcript_log (list): List of transcript entries with 'role' and 'text'
-        user_id (str): Firebase user ID
-        
-    Returns:
-        dict: Extracted structured profile data
     """
     try:
         # 1. Prepare transcript text
         full_text = "\n".join([f"{t['role'].upper()}: {t['text']}" for t in transcript_log])
 
-        # 2. Get Gemini model for structured output
-        model = get_gemini_model()
+        # 2. Use the modern 2025 GenAI Client
+        client = get_gemini_client()
+        if not client:
+            raise Exception("Gemini client not initialized")
 
         prompt = f"""
         You are a medical assistant. Extract a structured senior citizen's profile from this onboarding conversation.
@@ -37,17 +30,21 @@ def process_onboarding_transcript(transcript_log, user_id):
         {full_text}
         """
 
-        # Generate structured response
-        response = model.generate_content(
-            prompt,
-            generation_config={
-                "response_mime_type": "application/json",
-                "response_schema": SeniorProfile
-            }
+        # Use plain JSON output; avoid response_schema/generation_config incompatibility
+        response = client.models.generate_content(
+            model="gemini-2.0-flash",
+            contents=prompt,
+            config={"response_mime_type": "application/json"}
         )
 
-        structured_data = json.loads(response.text)
-        print(f"✅ Extracted Profile:\n{json.dumps(structured_data, indent=2)}")
+        raw = response.text if hasattr(response, "text") else response
+        structured_data = json.loads(raw)
+        try:
+            structured_data = SeniorProfile(**structured_data).model_dump()
+        except Exception:
+            pass
+
+        print(f"✅ Extracted Profile for {user_id}")
 
         # 3. Save to Firestore
         if db:
@@ -56,12 +53,10 @@ def process_onboarding_transcript(transcript_log, user_id):
                 "onboarding_complete": True,
                 "updated_at": firestore.SERVER_TIMESTAMP,
                 "transcript": transcript_log,
-                "reminders": []  # Initialize empty reminders list
+                "reminders": [] 
             }, merge=True)
             print(f"🚀 Firestore Sync Complete for ID: {user_id}")
-        else:
-            print("⚠️ Firestore not initialized, skipping database sync")
-
+        
         return structured_data
         
     except Exception as e:

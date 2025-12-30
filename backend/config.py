@@ -1,55 +1,46 @@
-"""
-config.py - Central Client Initialization
-Initializes all external clients: Firestore, ElevenLabs, Gemini, Twilio
-"""
-
 import os
 from dotenv import load_dotenv
 from google.cloud import firestore
 from elevenlabs.client import ElevenLabs
-import google.generativeai as genai
+from google import genai
 
 load_dotenv()
 
-# ===== FIRESTORE CLIENT =====
+# ===== FIRESTORE =====
 try:
-    project_id = os.getenv("GOOGLE_CLOUD_PROJECT")
-    db = firestore.Client(project=project_id) if project_id else firestore.Client()
+    db = firestore.Client()
     print("✓ Firestore initialized")
 except Exception as e:
-    print(f"⚠️ Warning: Firestore not initialized - {e}")
+    print(f"⚠️ Firestore error: {e}")
     db = None
 
-# ===== ELEVENLABS CLIENT =====
+# ===== ELEVENLABS (Unified for 1 Agent) =====
 try:
     el_client = ElevenLabs(api_key=os.getenv("ELEVENLABS_API_KEY"))
+    # Use the single ID provided in your .env for both variables
+    ONBOARDING_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
+    SERVICE_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
     AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
     print("✓ ElevenLabs initialized")
 except Exception as e:
-    print(f"⚠️ Warning: ElevenLabs not initialized - {e}")
+    print(f"⚠️ ElevenLabs error: {e}")
     el_client = None
-    AGENT_ID = None
 
-# ===== GEMINI API CONFIG =====
+# ===== GEMINI 2.0 =====
 try:
-    genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
-    print("✓ Gemini API configured")
+    gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+    print("✓ Gemini 2.0 client initialized")
 except Exception as e:
-    print(f"⚠️ Warning: Gemini API not configured - {e}")
+    print(f"⚠️ Gemini error: {e}")
+    gemini_client = None
 
-# ===== TWILIO CLIENT =====
-try:
-    from services.twilio_service import TwilioWhatsAppService
-    twilio_service = TwilioWhatsAppService()
-    print("✓ Twilio WhatsApp service initialized")
-except ValueError as e:
-    print(f"⚠️ Warning: Twilio service not initialized - {e}")
-    twilio_service = None
-except Exception as e:
-    print(f"⚠️ Warning: Twilio service error - {e}")
-    twilio_service = None
+def get_gemini_client():
+    return gemini_client
 
-
-def get_gemini_model(model_name="gemini-2.0-flash"):
-    """Returns a Gemini model instance for structured generation."""
-    return genai.GenerativeModel(model_name)
+def get_health_status():
+    return {
+        "status": "healthy",
+        "firestore": "connected" if db else "disconnected",
+        "elevenlabs": "connected" if el_client else "disconnected",
+        "gemini": "connected" if gemini_client else "disconnected"
+    }
