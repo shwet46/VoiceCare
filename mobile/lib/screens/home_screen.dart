@@ -16,7 +16,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool isLoading = true;
 
   static const Color primaryOrange = Color(0xFFE85D32);
-  static const Color bgColor = Color(0xFFF9FAFB);
+  static const Color bgColor = Color.fromARGB(255, 255, 255, 255);
 
   @override
   void initState() {
@@ -25,8 +25,9 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> loadReminderData() async {
-    final String jsonString =
-        await rootBundle.loadString('assets/test/rem.json');
+    final String jsonString = await rootBundle.loadString(
+      'assets/test/rem.json',
+    );
     final Map<String, dynamic> jsonMap = json.decode(jsonString);
     setState(() {
       reminderData = ReminderData.fromJson(jsonMap);
@@ -39,9 +40,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (isLoading) {
       return const Scaffold(
         backgroundColor: bgColor,
-        body: Center(
-          child: CircularProgressIndicator(color: primaryOrange),
-        ),
+        body: Center(child: CircularProgressIndicator(color: primaryOrange)),
       );
     }
 
@@ -68,10 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
               const SizedBox(height: 6),
               Text(
                 reminderData!.date,
-                style: const TextStyle(
-                  fontSize: 14,
-                  color: Colors.black54,
-                ),
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
               ),
 
               const SizedBox(height: 16),
@@ -123,10 +119,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // -------- SECTION TITLE --------
               const Text(
                 'Today’s Reminders',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 12),
 
@@ -233,10 +226,7 @@ class _ReminderCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(
                     '${reminder.time} • ${reminder.subtitle}',
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: Colors.black54,
-                    ),
+                    style: const TextStyle(fontSize: 13, color: Colors.black54),
                   ),
                 ],
               ),
@@ -244,8 +234,7 @@ class _ReminderCard extends StatelessWidget {
 
             // PRIORITY CHIP
             Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
               decoration: BoxDecoration(
                 color: priorityColor.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(20),

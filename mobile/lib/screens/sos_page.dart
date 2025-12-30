@@ -18,7 +18,7 @@ class _SosPageState extends State<SosPage> {
   // THEME COLORS (matches Home + Reminder)
   static const Color primaryOrange = Color(0xFFE85D32);
   static const Color deepBrown = Color(0xFF7A2E0E);
-  static const Color backgroundWhite = Color(0xFFF9FAFB);
+  static const Color backgroundWhite = Color.fromARGB(255, 255, 255, 255);
 
   @override
   void initState() {
@@ -51,8 +51,7 @@ class _SosPageState extends State<SosPage> {
 
       final filtered = allContacts.where((contact) {
         final hasEmergencyLabel = contact.phones.any(
-          (p) =>
-              p.customLabel?.toLowerCase().contains('emergency') == true,
+          (p) => p.customLabel?.toLowerCase().contains('emergency') == true,
         );
         final isEmergencyGroup = contact.groups.any(
           (g) =>
@@ -61,7 +60,7 @@ class _SosPageState extends State<SosPage> {
         );
         final hasEmergencyName =
             contact.displayName.toLowerCase().contains('ice') ||
-                contact.displayName.toLowerCase().contains('emergency');
+            contact.displayName.toLowerCase().contains('emergency');
 
         return hasEmergencyLabel || isEmergencyGroup || hasEmergencyName;
       }).toList();
@@ -88,20 +87,17 @@ class _SosPageState extends State<SosPage> {
     if (user == null) return;
 
     final batch = FirebaseFirestore.instance.batch();
-    final userDoc =
-        FirebaseFirestore.instance.collection('users').doc(user.uid);
+    final userDoc = FirebaseFirestore.instance
+        .collection('users')
+        .doc(user.uid);
     final contactsRef = userDoc.collection('emergency_contacts');
 
     for (final contact in contacts) {
-      batch.set(
-        contactsRef.doc(contact.id),
-        {
-          'name': contact.displayName,
-          'phones': contact.phones.map((e) => e.number).toList(),
-          'last_synced': FieldValue.serverTimestamp(),
-        },
-        SetOptions(merge: true),
-      );
+      batch.set(contactsRef.doc(contact.id), {
+        'name': contact.displayName,
+        'phones': contact.phones.map((e) => e.number).toList(),
+        'last_synced': FieldValue.serverTimestamp(),
+      }, SetOptions(merge: true));
     }
 
     await batch.commit();
@@ -112,39 +108,47 @@ class _SosPageState extends State<SosPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: backgroundWhite,
-      appBar: AppBar(
-        backgroundColor: backgroundWhite,
-        elevation: 0,
-        iconTheme: const IconThemeData(color: deepBrown),
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text(
-              'SOS Contacts',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.w700,
-                color: primaryOrange,
+      appBar: PreferredSize(
+        // Increase the height (default is kToolbarHeight, which is 56.0)
+        preferredSize: const Size.fromHeight(80.0),
+        child: Padding(
+          // Add margin/padding to the top and bottom
+          padding: const EdgeInsets.only(top: 10, bottom: 5),
+          child: AppBar(
+            backgroundColor: backgroundWhite,
+            elevation: 0,
+            centerTitle: false, // Ensures title stays left
+            iconTheme: const IconThemeData(color: deepBrown),
+            title: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min, // Keep it compact
+              children: const [
+                Text(
+                  'SOS Contacts',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w700,
+                    color: primaryOrange,
+                  ),
+                ),
+                SizedBox(height: 2),
+                Text(
+                  'Trusted emergency contacts',
+                  style: TextStyle(fontSize: 12, color: Colors.black45),
+                ),
+              ],
+            ),
+            actions: [
+              IconButton(
+                onPressed: _fetchAndSyncContacts,
+                icon: const Icon(Icons.sync_rounded),
               ),
-            ),
-            SizedBox(height: 2),
-            Text(
-              'Trusted emergency contacts',
-              style: TextStyle(fontSize: 12, color: Colors.black45),
-            ),
-          ],
-        ),
-        actions: [
-          IconButton(
-            onPressed: _fetchAndSyncContacts,
-            icon: const Icon(Icons.sync_rounded),
+            ],
           ),
-        ],
+        ),
       ),
       body: _isLoading
-          ? const Center(
-              child: CircularProgressIndicator(color: primaryOrange),
-            )
+          ? const Center(child: CircularProgressIndicator(color: primaryOrange))
           : _buildBody(),
     );
   }
@@ -172,8 +176,9 @@ class _SosPageState extends State<SosPage> {
 
   // ---------------- CONTACT CARD ----------------
   Widget _contactCard(Contact contact) {
-    final phone =
-        contact.phones.isNotEmpty ? contact.phones.first.number : 'No number';
+    final phone = contact.phones.isNotEmpty
+        ? contact.phones.first.number
+        : 'No number';
 
     return Container(
       margin: const EdgeInsets.only(bottom: 14),
@@ -189,20 +194,16 @@ class _SosPageState extends State<SosPage> {
         ],
       ),
       child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
         leading: _avatar(contact),
         title: Text(
           contact.displayName,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 16,
-          ),
+          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
         ),
-        subtitle: Text(
-          phone,
-          style: const TextStyle(color: Colors.black54),
-        ),
+        subtitle: Text(phone, style: const TextStyle(color: Colors.black54)),
         trailing: const Icon(Icons.chevron_right_rounded),
         onTap: () => _openDetails(contact),
       ),
@@ -237,10 +238,7 @@ class _SosPageState extends State<SosPage> {
             const SizedBox(height: 12),
             Text(
               contact.displayName,
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.w600,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w600),
             ),
             const SizedBox(height: 6),
             const Text(
@@ -269,8 +267,7 @@ class _SosPageState extends State<SosPage> {
                         style: const TextStyle(fontWeight: FontWeight.w500),
                       ),
                       subtitle: Text(p.label.name.toUpperCase()),
-                      onTap: () =>
-                          FlutterContacts.openExternalView(contact.id),
+                      onTap: () => FlutterContacts.openExternalView(contact.id),
                     ),
                   );
                 }).toList(),

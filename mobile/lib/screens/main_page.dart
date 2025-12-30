@@ -27,6 +27,7 @@ class _MainScreenState extends State<MainScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color.fromARGB(255, 255, 255, 255),
       appBar: const VoiceCareAppBar(),
       body: IndexedStack(index: _currentIndex, children: _pages),
       bottomNavigationBar: _buildBottomBar(),
@@ -40,6 +41,7 @@ class _MainScreenState extends State<MainScreen> {
       child: Container(
         margin: const EdgeInsets.fromLTRB(15, 0, 15, 10),
         height: 110, // same visual height as original
+        decoration: BoxDecoration(color: Colors.white),
         child: Stack(
           alignment: Alignment.bottomCenter,
           clipBehavior: Clip.none,
@@ -49,9 +51,9 @@ class _MainScreenState extends State<MainScreen> {
               height: 65,
               margin: const EdgeInsets.only(bottom: 15),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: const Color.fromARGB(255, 255, 255, 255),
                 borderRadius: BorderRadius.circular(40),
-                border: Border.all(color: const Color(0xFFD98E39), width: 1.6),
+                border: Border.all(color: const Color(0xFFD98E39), width: 1.5),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,

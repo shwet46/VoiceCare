@@ -15,14 +15,12 @@ class VoiceCareAppBar extends StatelessWidget implements PreferredSizeWidget {
       backgroundColor: Colors.white,
       elevation: 0,
       toolbarHeight: 90,
+      scrolledUnderElevation: 0,
       automaticallyImplyLeading: false,
       // Subtle bottom divider for a clean look
       bottom: PreferredSize(
         preferredSize: const Size.fromHeight(1.0),
-        child: Container(
-          color: Colors.grey.withOpacity(0.08),
-          height: 1.0,
-        ),
+        child: Container(color: Colors.grey.withOpacity(0.08), height: 1.0),
       ),
       title: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -75,7 +73,7 @@ class VoiceCareAppBar extends StatelessWidget implements PreferredSizeWidget {
                     color: primaryOrange.withOpacity(0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 4),
-                  )
+                  ),
                 ],
               ),
               child: IconButton(
