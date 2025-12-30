@@ -1,4 +1,9 @@
+import 'dart:developer';
+
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:voicecare/screens/setup_screen.dart';
 import 'package:voicecare/widgets/country_code_dropdown.dart';
 import '../services/auth_service.dart';
 import 'main_page.dart';
@@ -33,7 +38,6 @@ class _AuthScreenState extends State<AuthScreen> {
 
   static const Color primaryOrange = Color(0xFFDE9243);
   static const Color darkOrange = Color(0xFFC4561D);
-  static const String customFont = 'GoogleSans';
 
   @override
   void dispose() {
@@ -52,11 +56,29 @@ class _AuthScreenState extends State<AuthScreen> {
       _message = msg;
       _isLoading = loading;
     });
+
+    // NEW: Add this to show a popup error
+    if (msg.isNotEmpty && !loading) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(msg),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(10),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+      );
+    }
   }
 
   void _navigateToOnboarding() {
     if (!mounted) return;
-    Navigator.pushNamedAndRemoveUntil(context, '/onboarding', (route) => false);
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => const SetupScreen()),
+    );
   }
 
   void _navigateToMain() {
@@ -70,22 +92,51 @@ class _AuthScreenState extends State<AuthScreen> {
   void _handleEmailSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     _setStatus('', loading: true);
+
     try {
+      User? user;
       if (_isRegistering) {
-        await _authService.signUpWithEmail(
+        user = await _authService.signUpWithEmail(
           _emailController.text.trim(),
           _passwordController.text.trim(),
           _nameController.text.trim(),
         );
-        _navigateToOnboarding();
       } else {
-        await _authService.signInWithEmail(
+        final userCredential = await _authService.signInWithEmail(
           _emailController.text.trim(),
           _passwordController.text.trim(),
         );
-        _navigateToMain();
+        user = userCredential.user;
       }
-    } catch (e) {
+
+      if (user != null) {
+        // 1. LOG AUTH USER DATA
+        log("--- FIREBASE AUTH USER DATA ---", name: 'Auth');
+        log("UID: ${user.uid}", name: 'Auth');
+        log("Email: ${user.email}", name: 'Auth');
+        log("Display Name: ${user.displayName}", name: 'Auth');
+        log("Metadata: ${user.metadata}", name: 'Auth');
+
+        // 2. FETCH AND LOG FIRESTORE DATA
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
+
+        log('${data['onboarding_complete']}');
+
+        // Logic check
+        bool isComplete = data['onboarding_complete'];
+
+        if (isComplete) {
+          _navigateToMain();
+        } else {
+          _navigateToOnboarding();
+        }
+      }
+    } catch (e, stacktrace) {
+      log("Login Error", name: 'Auth', error: e, stackTrace: stacktrace);
       _setStatus(e.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -102,8 +153,7 @@ class _AuthScreenState extends State<AuthScreen> {
       try {
         await _authService.verifyPhoneNumber(
           _completePhoneNumber,
-          onCompleted: (credential) async {
-          },
+          onCompleted: (credential) async {},
           onFailed: (e) => _setStatus(e.message ?? "Verification failed"),
           onCodeSent: (id, _) => setState(() {
             _verId = id;

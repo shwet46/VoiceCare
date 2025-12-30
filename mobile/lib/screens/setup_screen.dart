@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:math' as math;
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:elevenlabs_agents/elevenlabs_agents.dart';
 import 'package:http/http.dart' as http;
@@ -57,8 +58,14 @@ class _SetupScreenState extends State<SetupScreen>
             debugPrint('✅ Connected: $conversationId'),
 
         // Logs when the session ends
-        onDisconnect: (details) =>
-            debugPrint('❌ Disconnected: ${details.reason}'),
+        onDisconnect: (details) async {
+          debugPrint('❌ Disconnected: ${details.reason}');
+
+          // If the user closed the call manually, save what we have
+          if (details.reason != "onboarding_complete") {
+            await _saveTranscriptToBackend();
+          }
+        },
 
         // Processes real-time words as the user speaks
         onTentativeUserTranscript: ({required transcript, required eventId}) =>
@@ -82,20 +89,23 @@ class _SetupScreenState extends State<SetupScreen>
         // Updates UI based on conversation status (e.g., connected, disconnected)
         onStatusChange: ({required status}) => setState(() {}),
 
-        // TRIGGER: Handles the "onboarding_complete" signal from the Agent
         onUnhandledClientToolCall: (ClientToolCall toolCall) async {
           debugPrint(
             '🤖 Daniel is triggering client tool: ${toolCall.toolName}',
           );
 
           if (toolCall.toolName == "onboarding_complete") {
-            // 1. Give the agent a moment to finish its goodbye
-            await Future.delayed(const Duration(seconds: 1));
+            // 1. Give the agent 2 seconds to finish its "Goodbye" sentence
+            await Future.delayed(const Duration(seconds: 2));
 
-            // 2. Safely end the voice session
+            // 2. End the voice session
             await _client.endSession();
 
-            // 3. Move to the next screen
+            // 3. IMPORTANT: Wait for the backend to process the transcript
+            // You might want to show a loading spinner here
+            await _saveTranscriptToBackend();
+
+            // 4. Now navigate
             if (mounted) {
               Navigator.pushReplacement(
                 context,
@@ -137,7 +147,7 @@ class _SetupScreenState extends State<SetupScreen>
     setState(() => _isStarting = true);
 
     // Your specific API Endpoint
-    const String apiUrl = 'http://192.168.31.52:5000/api/voice-session';
+    const String apiUrl = 'http://192.168.31.52:5000/api/voice-session/start';
     try {
       final response = await http
           .get(Uri.parse(apiUrl))
@@ -153,6 +163,49 @@ class _SetupScreenState extends State<SetupScreen>
       ).showSnackBar(SnackBar(content: Text("Connection failed: $e")));
     } finally {
       if (mounted) setState(() => _isStarting = false);
+    }
+  }
+
+  Future<void> _saveTranscriptToBackend() async {
+    if (_transcript.isEmpty) {
+      debugPrint('⚠️ Transcript is empty, skipping save.');
+      return;
+    }
+
+    // Get the real UID from Firebase
+    final User? currentUser = FirebaseAuth.instance.currentUser;
+    if (currentUser == null) {
+      debugPrint('❌ No user logged in. Cannot save transcript.');
+      return;
+    }
+
+    final String userId = currentUser.uid;
+    const String saveUrl =
+        'http://192.168.31.52:5000/api/voice-session/save-transcript';
+
+    try {
+      debugPrint('📤 Sending transcript to backend for user: $userId');
+      final response = await http
+          .post(
+            Uri.parse(saveUrl),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({
+              'user_id': userId,
+              'agent_type': 'onboarding',
+              'transcript': _transcript,
+            }),
+          )
+          .timeout(const Duration(seconds: 15));
+
+      if (response.statusCode == 200) {
+        debugPrint('✅ Backend save successful');
+      } else {
+        debugPrint(
+          '❌ Backend error: ${response.statusCode} - ${response.body}',
+        );
+      }
+    } catch (e) {
+      debugPrint('❌ Network error saving transcript: $e');
     }
   }
 

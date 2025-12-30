@@ -43,7 +43,7 @@ def _normalize_transcript(entries):
 # --- 1. VOICE SESSION MANAGEMENT ---
 
 
-@app.route("/api/voice-session/start", methods=["POST"])
+@app.route("/api/voice-session/start", methods=["GET"])
 def start_session():
     """Generates the signed URL to start the ElevenLabs conversation."""
     try:

@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -45,7 +46,7 @@ Future<void> showCallkitIncoming(Map<String, dynamic> data) async {
       isCustomNotification: true,
       isShowFullLockedScreen: true,
       ringtonePath: 'system_ringtone_default',
-      backgroundColor: '#BF4E1E', // Matching your kBurntOrange
+      backgroundColor: '#BF4E1E',
       backgroundUrl:
           'https://cdn-9.motorsport.com/images/mgl/6D1XbeV0/s800/max-verstappen-red-bull-racing.jpg',
       actionColor: '#BF4E1E',
@@ -88,6 +89,11 @@ void main() async {
   });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+  await FirebaseAppCheck.instance.activate(
+    providerAndroid: AndroidDebugProvider(),
+    providerApple: AppleDebugProvider(),
+  );
 
   runApp(const MyApp());
 }
