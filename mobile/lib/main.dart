@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -68,6 +70,22 @@ void main() async {
       storageBucket: dotenv.env['FIREBASE_STORAGE_BUCKET'] ?? '',
     ),
   );
+
+  FlutterCallkitIncoming.onEvent.listen((CallEvent? event) {
+    switch (event!.event) {
+      case Event.actionCallAccept:
+        log("Call Accepted! Extra data: ${event.body}");
+        break;
+      case Event.actionCallDecline:
+        print("Call Declined");
+        break;
+      case Event.actionCallTimeout:
+        print("Call Timed Out");
+        break;
+      default:
+        break;
+    }
+  });
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
