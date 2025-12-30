@@ -32,8 +32,10 @@ flutter:
 
   assets:
     - .env
-    - assets/ 
+    - assets/
     - assets/icons/
+    - assets/test/rem.json
+    - assets/test/calls.json
   
   fonts:
     - family: GoogleSans

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_contacts/flutter_contacts.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // 1. Import Auth
+import 'package:firebase_auth/firebase_auth.dart';
 
 class SosPage extends StatefulWidget {
   const SosPage({Key? key}) : super(key: key);
@@ -15,9 +15,10 @@ class _SosPageState extends State<SosPage> {
   bool _isLoading = false;
   String? _errorMessage;
 
-  final Color primaryOrange = const Color(0xFFDE9243);
-  final Color deepBrown = const Color(0xFFC4561D);
-  final Color backgroundWhite = const Color(0xFFFFFFFF);
+  // THEME COLORS (matches Home + Reminder)
+  static const Color primaryOrange = Color(0xFFE85D32);
+  static const Color deepBrown = Color(0xFF7A2E0E);
+  static const Color backgroundWhite = Color(0xFFF9FAFB);
 
   @override
   void initState() {
@@ -25,116 +26,88 @@ class _SosPageState extends State<SosPage> {
     _fetchAndSyncContacts();
   }
 
+  // ---------------- FETCH & SYNC ----------------
   Future<void> _fetchAndSyncContacts() async {
-    if (!mounted) return;
     setState(() {
       _isLoading = true;
       _errorMessage = null;
     });
 
     try {
-      if (await FlutterContacts.requestPermission()) {
-        final allContacts = await FlutterContacts.getContacts(
-          withProperties: true,
-          withThumbnail: true,
-          withGroups: true,
-        );
-
-        final filtered = allContacts.where((contact) {
-          bool hasEmergencyLabel = contact.phones.any(
-            (phone) =>
-                phone.customLabel?.toLowerCase().contains('emergency') == true,
-          );
-          bool isInEmergencyGroup = contact.groups.any(
-            (group) =>
-                group.name.toLowerCase().contains('emergency') ||
-                group.name.toLowerCase() == 'ice',
-          );
-          bool hasIceInName =
-              contact.displayName.toLowerCase().contains('ice') ||
-              contact.displayName.toLowerCase().contains('emergency');
-          return hasEmergencyLabel || isInEmergencyGroup || hasIceInName;
-        }).toList();
-
-        if (mounted) {
-          setState(() {
-            _emergencyContacts = filtered;
-          });
-        }
-
-        // Sync to Firebase using the logged-in User's ID
-        if (filtered.isNotEmpty) {
-          await _uploadToFirebase(filtered);
-        }
-
-        if (mounted) setState(() => _isLoading = false);
-      } else {
-        if (mounted) {
-          setState(() {
-            _errorMessage =
-                'Permission denied. Please enable contacts in settings.';
-            _isLoading = false;
-          });
-        }
-      }
-    } catch (e) {
-      if (mounted) {
+      if (!await FlutterContacts.requestPermission()) {
         setState(() {
-          _errorMessage = 'Error: $e';
+          _errorMessage =
+              'Permission denied. Please enable contacts access in settings.';
           _isLoading = false;
         });
-      }
-    }
-  }
-
-  Future<void> _uploadToFirebase(List<Contact> contacts) async {
-    try {
-      // 2. Get the current logged-in user's UID
-      final User? user = FirebaseAuth.instance.currentUser;
-      if (user == null) return;
-
-      final batch = FirebaseFirestore.instance.batch();
-
-      // Save under the user's specific document
-      final userDoc = FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid);
-      final collectionRef = userDoc.collection('emergency_contacts');
-
-      // Save each contact in the emergency_contacts subcollection
-      for (var contact in contacts) {
-        final docRef = collectionRef.doc(contact.id);
-        batch.set(docRef, {
-          'contact_id': contact.id,
-          'name': contact.displayName,
-          'phones': contact.phones.map((p) => p.number).toList(),
-          'emails': contact.emails.map((e) => e.address).toList(),
-          'last_synced': FieldValue.serverTimestamp(),
-        }, SetOptions(merge: true));
+        return;
       }
 
-      // Also save a summary in the user's profile document
-      final List<Map<String, dynamic>> summary = contacts
-          .map(
-            (c) => {
-              'contact_id': c.id,
-              'name': c.displayName,
-              'phones': c.phones.map((p) => p.number).toList(),
-            },
-          )
-          .toList();
-      batch.set(userDoc, {
-        'profile': {'emergency_contacts_summary': summary},
-        'last_emergency_contacts_sync': FieldValue.serverTimestamp(),
-      }, SetOptions(merge: true));
+      final allContacts = await FlutterContacts.getContacts(
+        withProperties: true,
+        withThumbnail: true,
+        withGroups: true,
+      );
 
-      await batch.commit();
-      debugPrint("Successfully synced to Firebase for user: ${user.uid}");
+      final filtered = allContacts.where((contact) {
+        final hasEmergencyLabel = contact.phones.any(
+          (p) =>
+              p.customLabel?.toLowerCase().contains('emergency') == true,
+        );
+        final isEmergencyGroup = contact.groups.any(
+          (g) =>
+              g.name.toLowerCase().contains('emergency') ||
+              g.name.toLowerCase() == 'ice',
+        );
+        final hasEmergencyName =
+            contact.displayName.toLowerCase().contains('ice') ||
+                contact.displayName.toLowerCase().contains('emergency');
+
+        return hasEmergencyLabel || isEmergencyGroup || hasEmergencyName;
+      }).toList();
+
+      setState(() {
+        _emergencyContacts = filtered;
+        _isLoading = false;
+      });
+
+      if (filtered.isNotEmpty) {
+        await _uploadToFirebase(filtered);
+      }
     } catch (e) {
-      debugPrint("Firebase Upload Error: $e");
+      setState(() {
+        _errorMessage = 'Something went wrong. Please try again.';
+        _isLoading = false;
+      });
     }
   }
 
+  // ---------------- FIREBASE UPLOAD ----------------
+  Future<void> _uploadToFirebase(List<Contact> contacts) async {
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) return;
+
+    final batch = FirebaseFirestore.instance.batch();
+    final userDoc =
+        FirebaseFirestore.instance.collection('users').doc(user.uid);
+    final contactsRef = userDoc.collection('emergency_contacts');
+
+    for (final contact in contacts) {
+      batch.set(
+        contactsRef.doc(contact.id),
+        {
+          'name': contact.displayName,
+          'phones': contact.phones.map((e) => e.number).toList(),
+          'last_synced': FieldValue.serverTimestamp(),
+        },
+        SetOptions(merge: true),
+      );
+    }
+
+    await batch.commit();
+  }
+
+  // ---------------- UI ----------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -142,168 +115,165 @@ class _SosPageState extends State<SosPage> {
       appBar: AppBar(
         backgroundColor: backgroundWhite,
         elevation: 0,
-        centerTitle: false,
-        iconTheme: IconThemeData(color: deepBrown),
-        title: Text.rich(
-          TextSpan(
-            children: [
-              TextSpan(
-                text: 'SOS',
-                style: TextStyle(
-                  color: primaryOrange,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 26,
-                ),
+        iconTheme: const IconThemeData(color: deepBrown),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: const [
+            Text(
+              'SOS Contacts',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.w700,
+                color: primaryOrange,
               ),
-              TextSpan(
-                text: ' Contacts',
-                style: TextStyle(
-                  color: deepBrown,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 26,
-                ),
-              ),
-            ],
-          ),
+            ),
+            SizedBox(height: 2),
+            Text(
+              'Trusted emergency contacts',
+              style: TextStyle(fontSize: 12, color: Colors.black45),
+            ),
+          ],
         ),
         actions: [
           IconButton(
             onPressed: _fetchAndSyncContacts,
             icon: const Icon(Icons.sync_rounded),
-            tooltip: "Sync with Cloud",
           ),
         ],
       ),
       body: _isLoading
-          ? Center(child: CircularProgressIndicator(color: primaryOrange))
+          ? const Center(
+              child: CircularProgressIndicator(color: primaryOrange),
+            )
           : _buildBody(),
     );
   }
 
   Widget _buildBody() {
     if (_errorMessage != null) {
-      return _buildCenteredMessage(Icons.error_outline_rounded, _errorMessage!);
+      return _centerMessage(Icons.error_outline, _errorMessage!);
     }
 
-    return CustomScrollView(
-      slivers: [
-        const SliverToBoxAdapter(
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-            child: Text(
-              "TRUSTED CONTACTS (CLOUD SYNCED)",
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                color: Colors.grey,
-              ),
-            ),
-          ),
-        ),
-        _emergencyContacts == null || _emergencyContacts!.isEmpty
-            ? SliverFillRemaining(
-                child: _buildCenteredMessage(
-                  Icons.contact_support_rounded,
-                  'No Emergency Contacts found.',
-                ),
-              )
-            : SliverPadding(
-                padding: const EdgeInsets.symmetric(horizontal: 18),
-                sliver: SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final contact = _emergencyContacts![index];
-                    return _buildContactTile(contact);
-                  }, childCount: _emergencyContacts!.length),
-                ),
-              ),
-      ],
+    if (_emergencyContacts == null || _emergencyContacts!.isEmpty) {
+      return _centerMessage(
+        Icons.contact_support_rounded,
+        'No emergency contacts found',
+      );
+    }
+
+    return ListView.builder(
+      padding: const EdgeInsets.all(20),
+      itemCount: _emergencyContacts!.length,
+      itemBuilder: (context, index) {
+        return _contactCard(_emergencyContacts![index]);
+      },
     );
   }
 
-  Widget _buildContactTile(Contact contact) {
-    final phone = contact.phones.isNotEmpty
-        ? contact.phones.first.number
-        : "No number";
+  // ---------------- CONTACT CARD ----------------
+  Widget _contactCard(Contact contact) {
+    final phone =
+        contact.phones.isNotEmpty ? contact.phones.first.number : 'No number';
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 12),
+      margin: const EdgeInsets.only(bottom: 14),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: primaryOrange.withOpacity(0.1)),
+        borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.03),
+            color: Colors.black.withOpacity(0.04),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
         ],
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        leading: _buildAvatar(contact),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        leading: _avatar(contact),
         title: Text(
           contact.displayName,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: deepBrown,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
             fontSize: 16,
           ),
         ),
-        subtitle: Text(phone, style: const TextStyle(color: Colors.black54)),
-        onTap: () => _showInAppDetails(contact),
+        subtitle: Text(
+          phone,
+          style: const TextStyle(color: Colors.black54),
+        ),
+        trailing: const Icon(Icons.chevron_right_rounded),
+        onTap: () => _openDetails(contact),
       ),
     );
   }
 
-  void _showInAppDetails(Contact contact) {
+  // ---------------- DETAILS SHEET ----------------
+  void _openDetails(Contact contact) {
     showModalBottomSheet(
       context: context,
-      backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => Container(
-        height: MediaQuery.of(context).size.height * 0.6,
+      backgroundColor: Colors.transparent,
+      builder: (_) => Container(
+        height: MediaQuery.of(context).size.height * 0.65,
         decoration: const BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+          borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
         ),
         child: Column(
           children: [
             const SizedBox(height: 12),
             Container(
-              width: 40,
+              width: 42,
               height: 4,
               decoration: BoxDecoration(
-                color: Colors.grey,
+                color: Colors.grey.shade300,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
             const SizedBox(height: 20),
-            _buildAvatar(contact, radius: 45),
-            const SizedBox(height: 15),
+            _avatar(contact, radius: 42),
+            const SizedBox(height: 12),
             Text(
               contact.displayName,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 22,
-                fontWeight: FontWeight.bold,
-                color: deepBrown,
+                fontWeight: FontWeight.w600,
               ),
             ),
-            const Divider(height: 40, indent: 40, endIndent: 40),
+            const SizedBox(height: 6),
+            const Text(
+              'Emergency Contact',
+              style: TextStyle(color: Colors.black45),
+            ),
+            const SizedBox(height: 20),
+            const Divider(indent: 32, endIndent: 32),
             Expanded(
               child: ListView(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                children: [
-                  ...contact.phones.map(
-                    (p) => ListTile(
-                      leading: Icon(Icons.phone_rounded, color: primaryOrange),
-                      title: Text(p.number),
-                      subtitle: Text(p.label.name.toUpperCase()),
-                      onTap: () => FlutterContacts.openExternalView(contact.id),
+                padding: const EdgeInsets.all(24),
+                children: contact.phones.map((p) {
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 12),
+                    decoration: BoxDecoration(
+                      color: primaryOrange.withOpacity(0.08),
+                      borderRadius: BorderRadius.circular(14),
                     ),
-                  ),
-                ],
+                    child: ListTile(
+                      leading: const Icon(
+                        Icons.phone_rounded,
+                        color: primaryOrange,
+                      ),
+                      title: Text(
+                        p.number,
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      subtitle: Text(p.label.name.toUpperCase()),
+                      onTap: () =>
+                          FlutterContacts.openExternalView(contact.id),
+                    ),
+                  );
+                }).toList(),
               ),
             ),
           ],
@@ -312,10 +282,11 @@ class _SosPageState extends State<SosPage> {
     );
   }
 
-  Widget _buildAvatar(Contact contact, {double radius = 28}) {
+  // ---------------- HELPERS ----------------
+  Widget _avatar(Contact contact, {double radius = 30}) {
     return CircleAvatar(
       radius: radius,
-      backgroundColor: primaryOrange.withOpacity(0.1),
+      backgroundColor: primaryOrange.withOpacity(0.15),
       backgroundImage: contact.thumbnail != null
           ? MemoryImage(contact.thumbnail!)
           : null,
@@ -324,21 +295,24 @@ class _SosPageState extends State<SosPage> {
               contact.displayName.isNotEmpty
                   ? contact.displayName[0].toUpperCase()
                   : '?',
-              style: TextStyle(color: deepBrown, fontWeight: FontWeight.bold),
+              style: const TextStyle(
+                fontWeight: FontWeight.bold,
+                color: deepBrown,
+              ),
             )
           : null,
     );
   }
 
-  Widget _buildCenteredMessage(IconData icon, String message) {
+  Widget _centerMessage(IconData icon, String text) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(icon, size: 80, color: primaryOrange.withOpacity(0.4)),
-          const SizedBox(height: 20),
+          const SizedBox(height: 16),
           Text(
-            message,
+            text,
             textAlign: TextAlign.center,
             style: const TextStyle(color: Colors.black45),
           ),
