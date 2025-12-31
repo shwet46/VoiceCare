@@ -14,6 +14,14 @@
   It works <b>offline-first, supports multiple languages</b>, and adapts intelligently to each user.
 </p>
 
+---
+
+<p align="center">
+  <img src="assets/readme4.png" alt="VoiceCare Additional" width="full">
+</p>
+
+---
+
 
 ## ✨ Features
 
@@ -110,30 +118,32 @@ flutter pub get
 
 ## 👥 Team members
 
-<table align="center">
-  <tr>
-    <td align="center" style="padding: 20px;">
-      <img src="https://github.com/ojasvi004.png?size=120" width="80" style="border-radius:50%;"><br><br>
-      <b>Ojasvi</b><br>
-      <a href="https://github.com/ojasvi004">@ojasvi004</a>
-    </td>
-    <td align="center" style="padding: 20px;">
-      <img src="https://github.com/maitri707.png?size=120" width="80" style="border-radius:50%;"><br><br>
-      <b>Maitri</b><br>
-      <a href="https://github.com/maitri707">@maitri707</a>
-    </td>
-    <td align="center" style="padding: 20px;">
-      <img src="https://github.com/shwet46.png?size=120" width="80" style="border-radius:50%;"><br><br>
-      <b>Shweta</b><br>
-      <a href="https://github.com/shwet46">@shwet46</a>
-    </td>
-    <td align="center" style="padding: 20px;">
-      <img src="https://github.com/sambhandavale.png?size=120" width="80" style="border-radius:50%;"><br><br>
-      <b>Samarth</b><br>
-      <a href="https://github.com/sambhandavale">@sambhandavale</a>
-    </td>
-  </tr>
-</table>
+<div style="display: flex; justify-content: left; flex-wrap: wrap; gap: 40px; text-align: center; font-family: sans-serif;">
+  <div>
+    <a href="https://github.com/ojasvi004">
+      <img src="https://github.com/ojasvi004.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
+      <p><b>Ojasvi</b></p>
+    </a>
+  </div>
+  <div>
+    <a href="https://github.com/maitri707">
+      <img src="https://github.com/maitri707.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
+      <p><b>Maitri</b></p>
+    </a>
+  </div>
+  <div>
+    <a href="https://github.com/shwet46">
+      <img src="https://github.com/shwet46.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
+      <p><b>Shweta</b></p>
+    </a>
+  </div>
+  <div>
+    <a href="https://github.com/sambhandavale">
+      <img src="https://github.com/sambhandavale.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
+      <p><b>Samarth</b></p>
+    </a>
+  </div>
+</div>
 
 ---
 
