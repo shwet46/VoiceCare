@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:voicecare/main.dart';
 import 'package:voicecare/screens/setup_screen.dart';
 import 'package:voicecare/widgets/country_code_dropdown.dart';
 import '../services/auth_service.dart';
@@ -73,28 +74,77 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
-  void _navigateToOnboarding() {
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const SetupScreen()),
+  void _logAuth(String message, {bool isError = false, Object? error}) {
+    log(
+      message,
+      name: 'VoiceCare.Auth',
+      level: isError ? 1000 : 0,
+      error: error,
     );
   }
 
+  void _navigateToSetup() {
+    _logAuth("🚀 Navigation: Using Global NavigatorKey to go to /setup");
+
+    // Instead of using the local 'context', use the global navigatorKey
+    navigatorKey.currentState?.pushReplacementNamed('/setup');
+  }
+
   void _navigateToMain() {
-    if (!mounted) return;
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainScreen()),
-    );
+    _logAuth("🚀 Navigation: Using Global NavigatorKey to go to /home");
+
+    navigatorKey.currentState?.pushReplacementNamed('/home');
+  }
+
+  // --- UNIFIED ROUTING LOGIC ---
+  Future<void> _routeUserAfterLogin(User user, bool isNewUser) async {
+    _logAuth("🏁 Routing Started | UID: ${user.uid} | isNewUser: $isNewUser");
+
+    if (isNewUser) {
+      _logAuth("✨ Path: New Registration. Skipping DB check, going to Setup.");
+      _navigateToSetup();
+      return;
+    }
+
+    try {
+      _logAuth("📡 DB Check: Fetching Firestore doc for UID: ${user.uid}");
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .get();
+
+      if (!userDoc.exists) {
+        _logAuth("❓ DB Check: No user document found in Firestore.");
+        _navigateToSetup();
+        return;
+      }
+
+      final data = userDoc.data();
+      final bool isComplete = data?['onboarding_complete'] == true;
+      _logAuth("📊 DB Result: onboarding_complete = $isComplete");
+
+      if (isComplete) {
+        _navigateToMain();
+      } else {
+        _navigateToSetup();
+      }
+    } catch (e) {
+      _logAuth("❌ DB Check Failed: Firestore error", isError: true, error: e);
+      _navigateToSetup(); // Fallback for stability during demo
+    }
   }
 
   void _handleEmailSubmit() async {
     if (!_formKey.currentState!.validate()) return;
     _setStatus('', loading: true);
+    _logAuth(
+      "📧 Email Auth: Attempting ${_isRegistering ? 'SIGN_UP' : 'SIGN_IN'}",
+    );
 
     try {
       User? user;
+      bool isNewUser = _isRegistering; // Store local state before async
+
       if (_isRegistering) {
         user = await _authService.signUpWithEmail(
           _emailController.text.trim(),
@@ -110,33 +160,14 @@ class _AuthScreenState extends State<AuthScreen> {
       }
 
       if (user != null) {
-        // 1. LOG AUTH USER DATA
-        log("--- FIREBASE AUTH USER DATA ---", name: 'Auth');
-        log("UID: ${user.uid}", name: 'Auth');
-        log("Email: ${user.email}", name: 'Auth');
-        log("Display Name: ${user.displayName}", name: 'Auth');
-        log("Metadata: ${user.metadata}", name: 'Auth');
-
-        // 2. FETCH AND LOG FIRESTORE DATA
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance
-            .collection('users')
-            .doc(user.uid)
-            .get();
-        Map<String, dynamic> data = userDoc.data() as Map<String, dynamic>;
-
-        log('${data['onboarding_complete']}');
-
-        // Logic check
-        bool isComplete = data['onboarding_complete'];
-
-        if (isComplete) {
-          _navigateToMain();
-        } else {
-          _navigateToOnboarding();
-        }
+        _logAuth("✅ Email Auth Success: ${user.email}");
+        await _routeUserAfterLogin(user, isNewUser);
+      } else {
+        _logAuth("❌ Email Auth Error: User object is null", isError: true);
       }
     } catch (e, stacktrace) {
-      log("Login Error", name: 'Auth', error: e, stackTrace: stacktrace);
+      _logAuth("❌ Email Exception", isError: true, error: e);
+      log("Stacktrace: $stacktrace"); // Log full trace for dev
       _setStatus(e.toString());
     } finally {
       if (mounted) setState(() => _isLoading = false);
@@ -145,6 +176,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   void _handlePhoneSubmit() async {
     if (!_otpSent) {
+      _logAuth("📱 Phone Auth: Requesting OTP for $_completePhoneNumber");
       if (_completePhoneNumber.isEmpty || _phoneController.text.length < 7) {
         _setStatus("Please enter a valid phone number");
         return;
@@ -153,44 +185,54 @@ class _AuthScreenState extends State<AuthScreen> {
       try {
         await _authService.verifyPhoneNumber(
           _completePhoneNumber,
-          onCompleted: (credential) async {},
-          onFailed: (e) => _setStatus(e.message ?? "Verification failed"),
-          onCodeSent: (id, _) => setState(() {
-            _verId = id;
-            _otpSent = true;
-            _isLoading = false;
-            _message = "OTP sent to $_completePhoneNumber";
-          }),
-          onTimeout: (id) => _verId = id,
+          onCompleted: (credential) =>
+              _logAuth("🤖 Auto-Verification complete"),
+          onFailed: (e) {
+            _logAuth("❌ Phone Verify Failed", isError: true, error: e.message);
+            _setStatus(e.message ?? "Verification failed");
+          },
+          onCodeSent: (id, _) {
+            _logAuth("📩 OTP Sent: VerificationID: $id");
+            setState(() {
+              _verId = id;
+              _otpSent = true;
+              _isLoading = false;
+              _message = "OTP sent to $_completePhoneNumber";
+            });
+          },
+          onTimeout: (id) => _logAuth("🕒 OTP Timeout for ID: $id"),
         );
       } catch (e) {
+        _logAuth("❌ Phone Start Error", isError: true, error: e);
         _setStatus("Error starting phone verification");
       }
     } else {
+      _logAuth("🔢 Phone Auth: Verifying OTP Code: ${_otpController.text}");
       if (_otpController.text.length < 6) {
         _setStatus("Enter 6-digit OTP");
         return;
       }
       _setStatus('', loading: true);
       try {
-        await _authService.signInWithOtp(
+        final userCredential = await _authService.signInWithOtp(
           verificationId: _verId!,
           smsCode: _otpController.text.trim(),
           name: _isRegistering ? _nameController.text.trim() : null,
         );
-        if (_isRegistering) {
-          _navigateToOnboarding();
-        } else {
-          _navigateToMain();
+
+        final user = userCredential; // Extract user from credential
+        if (user != null) {
+          _logAuth("✅ Phone Auth Success: UID: ${user.uid}");
+          await _routeUserAfterLogin(user, _isRegistering);
         }
       } catch (e) {
+        _logAuth("❌ OTP Verification Error", isError: true, error: e);
         _setStatus("Invalid Code");
       } finally {
         if (mounted) setState(() => _isLoading = false);
       }
     }
   }
-
   // --- UI Build Methods ---
 
   InputDecoration _inputStyle(String label, {String? hint}) {

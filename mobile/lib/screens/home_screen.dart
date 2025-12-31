@@ -1,9 +1,7 @@
-import 'dart:convert';
+import 'dart:developer';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
-import '../models/reminder.dart';
-import 'reminder_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -13,8 +11,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  Reminder? reminder;
+  List<Map<String, dynamic>> reminders = [];
   bool isLoading = true;
+
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   static const Color primaryOrange = Color(0xFFE85D32);
   static const Color bgColor = Color(0xFFF8F9FB);
@@ -22,42 +23,69 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    loadReminder();
+    _fetchDbReminders();
   }
 
-  Future<void> loadReminder() async {
-    final jsonString =
-        await rootBundle.loadString('assets/test/rem.json');
-    setState(() {
-      reminder = Reminder.fromJson(json.decode(jsonString));
-      isLoading = false;
-    });
+  /// Helper to format "1900-01-01T14:00:00" or "14:00:00" to readable time
+  String _formatTime(String? timeStr) {
+    if (timeStr == null || timeStr.isEmpty) return "No time set";
+    try {
+      // Handles ISO format from your screenshot: 1900-01-01T14:00:00
+      String timePart = timeStr.contains('T') ? timeStr.split('T')[1] : timeStr;
+      List<String> parts = timePart.split(':');
+      int hour = int.parse(parts[0]);
+      int minute = int.parse(parts[1]);
+
+      final period = hour >= 12 ? 'PM' : 'AM';
+      final hour12 = hour % 12 == 0 ? 12 : hour % 12;
+      final minuteStr = minute.toString().padLeft(2, '0');
+
+      return "$hour12:$minuteStr $period";
+    } catch (e) {
+      return timeStr; // Fallback to raw string if parsing fails
+    }
   }
 
-  String formatTime(String iso) {
-    return DateFormat('hh:mm a').format(
-      DateTime.parse(iso).toLocal(),
-    );
+  Future<void> _fetchDbReminders() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) {
+        setState(() => isLoading = false);
+        return;
+      }
+
+      // Query updated to match your screenshot (status: "pending")
+      final querySnapshot = await _firestore
+          .collection('reminders')
+          .where('user_id', isEqualTo: user.uid)
+          .where('status', isEqualTo: 'pending')
+          .get();
+
+      final reminderList = querySnapshot.docs
+          .map((doc) => {'id': doc.id, ...doc.data()})
+          .toList();
+
+      if (mounted) {
+        setState(() {
+          reminders = reminderList;
+          isLoading = false;
+        });
+      }
+    } catch (e) {
+      log("Reminder Fetch Error: $e");
+      if (mounted) setState(() => isLoading = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     if (isLoading) {
       return const Scaffold(
-        body: Center(
-          child: CircularProgressIndicator(color: primaryOrange),
-        ),
+        body: Center(child: CircularProgressIndicator(color: primaryOrange)),
       );
     }
 
-    final d = reminder!.reminderDetails;
-    final o = reminder!.outcome;
-
-    /// Extract user name from transcript
-    String userName = 'User';
-    final agentLine = reminder!.transcript.first.text;
-    final match = RegExp(r'Hello ([^,]+)').firstMatch(agentLine);
-    if (match != null) userName = match.group(1)!;
+    final String userName = _auth.currentUser?.displayName ?? 'User';
 
     return Scaffold(
       backgroundColor: bgColor,
@@ -67,9 +95,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              /// HEADER
               Text(
-                'Good Evening, $userName',
+                'Hello, $userName',
                 style: const TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
@@ -77,72 +104,26 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                'Your next reminder',
+                'Your Scheduled Reminders',
                 style: TextStyle(color: Colors.grey.shade600),
               ),
-
               const SizedBox(height: 24),
-
-              /// REMINDER CARD (ONLY CONTENT)
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => ReminderDetailScreen(
-                        reminder: reminder!,
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: _cardDecoration(),
-                  child: Row(
-                    children: [
-                      _iconBox(),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              d.title,
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            const SizedBox(height: 6),
-                            Text(
-                              '${d.medicationName} • ${d.dosage}',
-                              style: TextStyle(
-                                fontSize: 14,
-                                color: Colors.grey.shade700,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Row(
-                              children: [
-                                const Icon(
-                                  Icons.schedule,
-                                  size: 16,
-                                  color: Colors.black45,
-                                ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  formatTime(d.scheduledTime),
-                                  style: const TextStyle(fontSize: 14),
-                                ),
-                              ],
-                            ),
-                          ],
+              Expanded(
+                child: reminders.isEmpty
+                    ? const Center(child: Text("No pending reminders set"))
+                    : RefreshIndicator(
+                        onRefresh: _fetchDbReminders,
+                        color: primaryOrange,
+                        child: ListView.separated(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          itemCount: reminders.length,
+                          separatorBuilder: (_, __) =>
+                              const SizedBox(height: 16),
+                          itemBuilder: (context, index) {
+                            return _buildReminderCard(reminders[index]);
+                          },
                         ),
                       ),
-                      _statusBadge(o.actionStatus),
-                    ],
-                  ),
-                ),
               ),
             ],
           ),
@@ -151,51 +132,88 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  /// UI HELPERS
+  Widget _buildReminderCard(Map<String, dynamic> data) {
+    IconData icon;
+    // Map icons based on the 'type' field in your screenshot
+    switch (data['type']) {
+      case 'reminder':
+        icon = Icons.notifications_active;
+        break;
+      case 'medication':
+        icon = Icons.medication;
+        break;
+      default:
+        icon = Icons.alarm;
+    }
 
-  BoxDecoration _cardDecoration() => BoxDecoration(
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(18),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.06),
-            blurRadius: 12,
-            offset: const Offset(0, 6),
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
           ),
         ],
-      );
-
-  Widget _iconBox() => Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: Colors.orange.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: const Icon(
-          Icons.medication_outlined,
-          size: 30,
-          color: primaryOrange,
-        ),
-      );
-
-  Widget _statusBadge(String status) => Container(
-        padding:
-            const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-        decoration: BoxDecoration(
-          color: status == 'completed'
-              ? Colors.green.shade50
-              : Colors.orange.shade50,
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Text(
-          status.toUpperCase(),
-          style: TextStyle(
-            fontSize: 11,
-            fontWeight: FontWeight.bold,
-            color: status == 'completed'
-                ? Colors.green
-                : primaryOrange,
+      ),
+      child: Row(
+        children: [
+          // Icon Box
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: primaryOrange.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: Icon(icon, size: 28, color: primaryOrange),
           ),
-        ),
-      );
+          const SizedBox(width: 16),
+          // Content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  // Mapping to "medication_name" from your screenshot
+                  data['medication_name'] ?? 'Reminder',
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                if ((data['about'] ?? '').isNotEmpty)
+                  Text(
+                    data['about'],
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
+                const SizedBox(height: 10),
+                Row(
+                  children: [
+                    const Icon(
+                      Icons.access_time,
+                      size: 16,
+                      color: Colors.black45,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      _formatTime(data['scheduled_time']),
+                      style: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                        color: primaryOrange,
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

@@ -27,13 +27,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         final profile = await ProfileService().fetchUserProfile();
         final isComplete =
             profile != null &&
-            [
-              profile.fullName,
-              profile.allergies,
-              profile.medications,
-              profile.carePreferences,
-              profile.healthConcerns,
-            ].every((e) => e != null && e.trim().isNotEmpty);
+            // Check the String field
+            (profile.fullName?.trim().isNotEmpty ?? false) &&
+            // Check the List fields: ensure they are not null AND not empty
+            (profile.allergies?.isNotEmpty ?? false) &&
+            (profile.medications?.isNotEmpty ?? false) &&
+            (profile.carePreferences?.isNotEmpty ?? false) &&
+            (profile.healthConcerns?.isNotEmpty ?? false);
         if (!mounted) return;
         if (!isComplete) {
           Navigator.pushReplacementNamed(context, '/onboarding');
@@ -50,13 +50,13 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         final profile = await ProfileService().fetchUserProfile();
         final isComplete =
             profile != null &&
-            [
-              profile.fullName,
-              profile.allergies,
-              profile.medications,
-              profile.carePreferences,
-              profile.healthConcerns,
-            ].every((e) => e != null && e.trim().isNotEmpty);
+            // Check the String field
+            (profile.fullName?.trim().isNotEmpty ?? false) &&
+            // Check the List fields: ensure they are not null AND not empty
+            (profile.allergies?.isNotEmpty ?? false) &&
+            (profile.medications?.isNotEmpty ?? false) &&
+            (profile.carePreferences?.isNotEmpty ?? false) &&
+            (profile.healthConcerns?.isNotEmpty ?? false);
         if (!mounted) return;
         if (!isComplete) {
           Navigator.pushReplacementNamed(context, '/onboarding');

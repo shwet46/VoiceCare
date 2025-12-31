@@ -9,6 +9,9 @@ import 'package:flutter_callkit_incoming/entities/call_event.dart';
 import 'package:flutter_callkit_incoming/entities/call_kit_params.dart';
 import 'package:flutter_callkit_incoming/flutter_callkit_incoming.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:voicecare/screens/call_screen.dart';
+import 'package:voicecare/screens/main_page.dart';
+import 'package:voicecare/screens/setup_screen.dart';
 import 'package:voicecare/screens/splash.dart';
 import 'package:voicecare/screens/onboarding_form_page.dart';
 import 'package:voicecare/screens/home_screen.dart';
@@ -19,6 +22,7 @@ const Color kBurntOrange = Color(0xFFBF4E1E);
 const Color kMustardGold = Color(0xFFDD9239);
 const Color kSageGreen = Color(0xFFB0D0BF);
 const Color kOliveGreen = Color(0xFF929D65);
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If the message contains call data, show the CallKit UI
@@ -30,10 +34,10 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
 Future<void> showCallkitIncoming(Map<String, dynamic> data) async {
   final params = CallKitParams(
     id: data['id'] ?? 'default_id',
-    nameCaller: data['nameCaller'] ?? 'Max Verstappan',
+    nameCaller: data['nameCaller'] ?? 'Voice Care',
     appName: 'VoiceCare',
     avatar:
-        'https://cdn-9.motorsport.com/images/mgl/6D1XbeV0/s800/max-verstappen-red-bull-racing.jpg', // Optional: Replace with your AI icon
+        'https://cdn.dribbble.com/userupload/11206262/file/still-0e12db184a07f9d3091f839d077f143a.png?format=webp&resize=400x300&vertical=center', // Optional: Replace with your AI icon
     handle: data['handle'] ?? 'Voice Session',
     type: 0, // 0 for Audio, 1 for Video
     duration: 30000, // 30 seconds
@@ -48,7 +52,7 @@ Future<void> showCallkitIncoming(Map<String, dynamic> data) async {
       ringtonePath: 'system_ringtone_default',
       backgroundColor: '#BF4E1E',
       backgroundUrl:
-          'https://cdn-9.motorsport.com/images/mgl/6D1XbeV0/s800/max-verstappen-red-bull-racing.jpg',
+          'https://cdn.dribbble.com/userupload/11206262/file/still-0e12db184a07f9d3091f839d077f143a.png?format=webp&resize=400x300&vertical=center',
       actionColor: '#BF4E1E',
       incomingCallNotificationChannelName: 'Incoming Call',
       missedCallNotificationChannelName: 'Missed Call',
@@ -75,7 +79,24 @@ void main() async {
   FlutterCallkitIncoming.onEvent.listen((CallEvent? event) {
     switch (event!.event) {
       case Event.actionCallAccept:
-        log("Call Accepted! Extra data: ${event.body}");
+        log("Call Accepted! Data: ${event.body}");
+
+        // Extract from the top-level body map
+        // 'number' in the body contains what you sent as 'handle' in FCM
+        final String handleValue = event.body['number'] ?? '';
+
+        final reminder = {
+          // If you sent "Reminder: Diabetes Med", this extracts "Diabetes Med"
+          'name': handleValue.replaceFirst('Reminder: ', '').trim(),
+          // 'id' in the body usually corresponds to the 'id' you sent (e.g., call_Diabetes Med)
+          'about':
+              event.body['id']?.toString().replaceFirst('call_', '') ??
+              'Scheduled Medication',
+        };
+
+        navigatorKey.currentState?.push(
+          MaterialPageRoute(builder: (_) => CallScreen(reminderData: reminder)),
+        );
         break;
       case Event.actionCallDecline:
         print("Call Declined");
@@ -109,6 +130,7 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
+    // _checkInitialCall();
 
     // Listen for messages while the app is in the FOREGROUND
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
@@ -118,9 +140,44 @@ class _MyAppState extends State<MyApp> {
     });
   }
 
+  // Future<void> _checkInitialCall() async {
+  //   // Check if there is an active call (this works if the app was just launched by an "Accept" action)
+  //   var calls = await FlutterCallkitIncoming.activeCalls();
+
+  //   if (calls is List && calls.isNotEmpty) {
+  //     // Usually, the first one is our active call
+  //     final call = calls[0];
+
+  //     // Check if it was accepted
+  //     if (call['isAccepted'] == true) {
+  //       final String handleValue = call['number'] ?? '';
+  //       final reminder = {
+  //         'name': handleValue.replaceFirst('Reminder: ', '').trim(),
+  //         'about':
+  //             call['id']?.toString().replaceFirst('call_', '') ??
+  //             'Scheduled Medication',
+  //       };
+
+  //       // Small delay to ensure the Navigator is ready
+  //       Future.delayed(const Duration(milliseconds: 500), () {
+  //         navigatorKey.currentState?.pushNamedAndRemoveUntil(
+  //           '/home', // Go home first to build the stack
+  //           (route) => false,
+  //         );
+  //         navigatorKey.currentState?.push(
+  //           MaterialPageRoute(
+  //             builder: (_) => CallScreen(reminderData: reminder),
+  //           ),
+  //         );
+  //       });
+  //     }
+  //   }
+  // }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
       title: 'VoiceCare',
       theme: ThemeData(
@@ -169,8 +226,9 @@ class _MyAppState extends State<MyApp> {
       ),
       home: const SplashScreen(),
       routes: {
+        '/setup': (_) => const SetupScreen(),
         '/onboarding': (_) => const OnboardingFormPage(),
-        '/home': (_) => const HomeScreen(),
+        '/home': (_) => const MainScreen(),
       },
     );
   }

@@ -4,7 +4,7 @@ from firebase_admin import messaging
 
 init_firestore()
 
-def trigger_ai_call(fcm_token, caller_name="Max Verstappen"):
+def trigger_ai_call(fcm_token, caller_name="Voice Care"):
     # Define the data payload
     message = messaging.Message(
         data={
