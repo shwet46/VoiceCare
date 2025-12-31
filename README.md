@@ -8,7 +8,7 @@
 </p>
 
 <p align="left">
-  VoiceCare is an AI-powered platform for independent living, offering smooth voice-first onboarding, multilingual support, and friendly conversation. It provides personalized reminders, health monitoring, and instant emergency detection with calm guidance. Caregivers and family receive real-time updates, while multi-agent intelligence adapts to each user. Works offline and syncs securely when connected.
+  VoiceCare is an AI-powered platform for independent living, offering smooth voice-first onboarding, multilingual support, and friendly conversation. It provides personalized reminders, health monitoring, and instant emergency detection with calm guidance. Caregivers and family receive real-time updates, while multi-agent intelligence adapts to each user. 
 </p>
 <p align="left">
   It <b> supports multiple languages</b>, and adapts intelligently to each user.
@@ -23,7 +23,7 @@
 <samp>
   <h3>
     <a>
-      Read our Medium blog on VoiceCare -
+      Read our Blog Post -
       <img src="https://raw.githubusercontent.com/github/explore/main/topics/medium/medium.png" width="15">
       <a href="https://medium.com/@maitridalvi2004/empathetic-ai-companion-for-independent-living-95a1d1982a25">
         Medium
