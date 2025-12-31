@@ -11,7 +11,7 @@ load_dotenv()
 # ===== 1. FIRESTORE SETUP =====
 # This logic handles both Vercel (Env Var) and Local (File) authentication
 try:
-    # Option A: Production (Vercel) - Load from Environment Variable String
+    # Option A: Production (Vercel)
     firebase_creds_json = os.getenv("FIREBASE_SERVICE_ACCOUNT")
 
     if firebase_creds_json:
