@@ -11,7 +11,7 @@
   VoiceCare is an AI-powered platform for independent living, offering smooth voice-first onboarding, multilingual support, and friendly conversation. It provides personalized reminders, health monitoring, and instant emergency detection with calm guidance. Caregivers and family receive real-time updates, while multi-agent intelligence adapts to each user. Works offline and syncs securely when connected.
 </p>
 <p align="left">
-  It works <b>offline-first, supports multiple languages</b>, and adapts intelligently to each user.
+  It <b> supports multiple languages</b>, and adapts intelligently to each user.
 </p>
 
 
@@ -50,7 +50,6 @@
 | *Automatic Alerts*                | Notifies caregivers or emergency services instantly.           |
 | *Caregiver & Family Integration*  | Shares real-time updates with trusted contacts.                |
 | *Multi-Agent Intelligence*        | Adapts responses using personalized AI agents.                 |
-| *Offline & Cloud Sync*            | Works offline and securely syncs when connected.               |
 
 ---
 
@@ -113,7 +112,6 @@
     <li>Voice-first, screen-free interaction for accessibility</li>
     <li>Multilingual support for diverse user groups</li>
     <li>Designed for elderly and digitally underserved populations</li>
-    <li>Offline-first functionality for low-connectivity regions</li>
   </ul>
 </details>
 
@@ -180,4 +178,6 @@ flutter pub get
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 
 ---
+
+**Note:** This app is currently in its MVP (Minimum Viable Product) stage.
 
