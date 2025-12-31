@@ -8,11 +8,32 @@
 </p>
 
 <p align="left">
-  VoiceCare is an AI-powered platform for independent living, offering smooth voice-first onboarding, multilingual support, and friendly conversation. It provides personalized reminders, health monitoring, and instant emergency detection with calm guidance. Caregivers and family receive real-time updates, while multi-agent intelligence adapts to each user. Works offline and syncs securely when connected.
+  VoiceCare is an AI-powered platform for independent living, offering smooth voice-first onboarding, multilingual support, and friendly conversation. It provides personalized reminders, health monitoring, and instant emergency detection with calm guidance. Caregivers and family receive real-time updates, while multi-agent intelligence adapts to each user. 
 </p>
 <p align="left">
-  It works <b>offline-first, supports multiple languages</b>, and adapts intelligently to each user.
+  It <b> supports multiple languages</b>, and adapts intelligently to each user.
 </p>
+
+
+
+<p align="center">
+  <img src="assets/readme4.png" alt="VoiceCare Additional" width="full">
+</p>
+
+<samp>
+  <h3>
+    <a>
+      Read our Blog Post -
+      <img src="https://raw.githubusercontent.com/github/explore/main/topics/medium/medium.png" width="15">
+      <a href="https://medium.com/@maitridalvi2004/empathetic-ai-companion-for-independent-living-95a1d1982a25">
+        Medium
+      </a>
+    </a>
+  </h3>
+</samp>
+
+
+---
 
 
 ## ✨ Features
@@ -29,10 +50,17 @@
 | *Automatic Alerts*                | Notifies caregivers or emergency services instantly.           |
 | *Caregiver & Family Integration*  | Shares real-time updates with trusted contacts.                |
 | *Multi-Agent Intelligence*        | Adapts responses using personalized AI agents.                 |
-| *Offline & Cloud Sync*            | Works offline and securely syncs when connected.               |
 
 ---
 
+
+<p align="center">
+	<img src="assets/readme5.png" alt="VoiceCare Demo" width="full">
+</p>
+
+<p align="center">
+
+---
 
 <p align="center">
 	<img src="assets/readme3.png" alt="VoiceCare Demo" width="full">
@@ -45,35 +73,48 @@
 <h2 align="left">🌱 UN Sustainable Development Goals (SDGs)</h2>
 
 <p align="left">
-  <a href="https://sdgs.un.org/goals/goal3" target="_blank">
-    <img src="https://img.shields.io/badge/SDG%203-Good%20Health%20%26%20Well--Being-4CAF50?logo=united-nations&logoColor=white" alt="SDG 3: Good Health & Well-Being" style="margin-right:8px;"/>
-  </a>
-  <a href="https://sdgs.un.org/goals/goal10" target="_blank">
-    <img src="https://img.shields.io/badge/SDG%2010-Reduced%20Inequalities-1976D2?logo=united-nations&logoColor=white" alt="SDG 10: Reduced Inequalities"/>
-  </a>
+  <b>VoiceCare aligns with the following UN Sustainable Development Goals:</b>
 </p>
 
-<div align="left">
-  <b>VoiceCare strongly aligns with these UN SDGs:</b>
-</div>
+<br>
 
 <details>
-  <summary><b>🩺 SDG 3 – Good Health & Well-Being</b></summary>
+  <summary style="display: flex; align-items: center; gap: 10px;">
+    <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-03.jpg"
+         width="40"
+         style="border-radius:6px;">
+    <b>SDG 3 – Good Health & Well-Being</b>
+  </summary>
+
+  <br>
+
   <ul>
-    <li>Emergency detection and rapid response</li>
-    <li>Continuous health monitoring</li>
-    <li>Mental well-being through companionship</li>
+    <li>Early emergency detection through voice distress cues</li>
+    <li>Calm, guided assistance during critical situations</li>
+    <li>Continuous well-being and safety monitoring</li>
+    <li>Emotional reassurance via friendly AI companionship</li>
   </ul>
 </details>
 
+<br>
+
 <details>
-  <summary><b>♿ SDG 10 – Reduced Inequalities</b></summary>
+  <summary style="display: flex; align-items: center; gap: 10px;">
+    <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-10.jpg"
+         width="40"
+         style="border-radius:6px;">
+    <b>SDG 10 – Reduced Inequalities</b>
+  </summary>
+
+  <br>
+
   <ul>
-    <li>Voice-first, screen-free accessibility</li>
-    <li>Multilingual and elderly-friendly design</li>
-    <li>Inclusive technology for digitally underserved users</li>
+    <li>Voice-first, screen-free interaction for accessibility</li>
+    <li>Multilingual support for diverse user groups</li>
+    <li>Designed for elderly and digitally underserved populations</li>
   </ul>
 </details>
+
 
 ---
 
@@ -107,22 +148,22 @@ flutter pub get
 
 <table align="center">
   <tr>
-    <td align="center" style="padding: 15px;">
+    <td align="center" style="padding: 20px;">
       <img src="https://github.com/ojasvi004.png?size=120" width="80" style="border-radius:50%;"><br><br>
       <b>Ojasvi</b><br>
       <a href="https://github.com/ojasvi004">@ojasvi004</a>
     </td>
-    <td align="center" style="padding: 15px;">
+    <td align="center" style="padding: 20px;">
       <img src="https://github.com/maitri707.png?size=120" width="80" style="border-radius:50%;"><br><br>
       <b>Maitri</b><br>
       <a href="https://github.com/maitri707">@maitri707</a>
     </td>
-    <td align="center" style="padding: 15px;">
+    <td align="center" style="padding: 20px;">
       <img src="https://github.com/shwet46.png?size=120" width="80" style="border-radius:50%;"><br><br>
       <b>Shweta</b><br>
       <a href="https://github.com/shwet46">@shwet46</a>
     </td>
-    <td align="center" style="padding: 15px;">
+    <td align="center" style="padding: 20px;">
       <img src="https://github.com/sambhandavale.png?size=120" width="80" style="border-radius:50%;"><br><br>
       <b>Samarth</b><br>
       <a href="https://github.com/sambhandavale">@sambhandavale</a>
@@ -137,4 +178,6 @@ flutter pub get
 This project is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for details.
 
 ---
+
+**Note:** This app is currently in its MVP (Minimum Viable Product) stage.
 
