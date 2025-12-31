@@ -21,33 +21,32 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   void _navigateToNext() async {
-    // 1. Artificial delay to show the splash logo (e.g., 2 seconds)
     await Future.delayed(const Duration(seconds: 2));
-
-    // 2. Check current Firebase User
     User? user = FirebaseAuth.instance.currentUser;
 
     if (!mounted) return;
 
     if (user != null) {
-      // Check if user profile is complete
-      final profile = await ProfileService().fetchUserProfile();
-      final isComplete =
-          profile != null &&
-          [
-            profile.fullName,
-            profile.allergies,
-            profile.medications,
-            profile.carePreferences,
-            profile.healthConcerns,
-          ].every((e) => e != null && e.trim().isNotEmpty);
-      if (!isComplete) {
-        Navigator.pushReplacementNamed(context, '/onboarding');
-      } else {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const MainScreen()),
-        );
+      try {
+        // 1. Fetch the user profile/doc
+        final profile = await ProfileService().fetchUserProfile();
+
+        // 2. Determine if they finished the AI Onboarding
+        // Note: You can check individual fields or just your 'onboarding_complete' boolean
+        final bool isComplete =
+            profile != null && (profile.fullName?.trim().isNotEmpty ?? false);
+
+        if (isComplete) {
+          // ✅ Profile done -> Go to Main Dashboard
+          Navigator.pushReplacementNamed(context, '/home');
+        } else {
+          // ❌ Profile NOT done -> Go to AI Agent (SetupScreen)
+          Navigator.pushReplacementNamed(context, '/setup');
+        }
+      } catch (e) {
+        debugPrint("Error fetching profile: $e");
+        // Fallback: If error occurs, send to Setup just in case
+        Navigator.pushReplacementNamed(context, '/setup');
       }
     } else {
       // No user -> Go to Welcome Page

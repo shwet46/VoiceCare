@@ -168,7 +168,11 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  Widget _row(String label, String? value) {
+  // Change the parameter type from String? to dynamic or List<String>?
+  Widget _row(String label, List<String>? values) {
+    // Join the list items with a comma for display
+    final String displayValue = values?.join(", ") ?? '';
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -185,14 +189,12 @@ class _ProfilePageState extends State<ProfilePage> {
         ),
         Expanded(
           child: Text(
-            value?.isNotEmpty == true ? value! : 'Not set',
+            displayValue.isNotEmpty ? displayValue : 'Not set',
             textAlign: TextAlign.right,
             style: TextStyle(
               fontSize: 14,
               fontFamily: 'GoogleSans',
-              color: value == null || value.isEmpty
-                  ? Colors.grey
-                  : Colors.black,
+              color: displayValue.isEmpty ? Colors.grey : Colors.black,
             ),
           ),
         ),
@@ -211,10 +213,11 @@ class _ProfilePageState extends State<ProfilePage> {
     final p = _profile ?? UserProfile();
 
     _fullNameCtrl.text = p.fullName ?? '';
-    _allergiesCtrl.text = p.allergies ?? '';
-    _medicationsCtrl.text = p.medications ?? '';
-    _carePreferencesCtrl.text = p.carePreferences ?? '';
-    _healthConcernsCtrl.text = p.healthConcerns ?? '';
+    // Convert Lists to Strings for the TextFields
+    _allergiesCtrl.text = p.allergies?.join(", ") ?? '';
+    _medicationsCtrl.text = p.medications?.join(", ") ?? '';
+    _carePreferencesCtrl.text = p.carePreferences?.join(", ") ?? '';
+    _healthConcernsCtrl.text = p.healthConcerns?.join(", ") ?? '';
 
     showDialog(
       context: context,
@@ -290,12 +293,24 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _saveProfile() async {
     setState(() => _isSaving = true);
 
+    // Helper to turn "Peanuts, Dust" into ["Peanuts", "Dust"]
+    List<String> _parseInput(String input) {
+      if (input.trim().isEmpty) return [];
+      return input
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+
     final updated = UserProfile(
       fullName: _fullNameCtrl.text.trim(),
-      allergies: _allergiesCtrl.text.trim(),
-      medications: _medicationsCtrl.text.trim(),
-      carePreferences: _carePreferencesCtrl.text.trim(),
-      healthConcerns: _healthConcernsCtrl.text.trim(),
+      allergies: _parseInput(_allergiesCtrl.text),
+      medications: _parseInput(_medicationsCtrl.text),
+      carePreferences: _parseInput(_carePreferencesCtrl.text),
+      healthConcerns: _parseInput(_healthConcernsCtrl.text),
+      // Preserve existing contacts if any
+      emergencyContactsSummary: _profile?.emergencyContactsSummary,
     );
 
     await ProfileService().updateUserProfile(updated);

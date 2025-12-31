@@ -3,97 +3,81 @@ onboarding.py - Onboarding Agent Logic
 Processes onboarding transcripts and extracts medical profiles using Gemini 2.0
 """
 
-import json
-from config import db, get_gemini_client
-from models.onboarding import SeniorProfile
+from datetime import datetime
 from google.cloud import firestore
-
+from config import db, get_gemini_client
+import json
 
 def process_onboarding_transcript(transcript_log, user_id):
+    full_text = "\n".join([f"{t['role'].upper()}: {t['text']}" for t in transcript_log])
+    client = get_gemini_client()
+
+    prompt = f"""
+    Extract the senior's profile into JSON.
+
+    SCHEMA:
+    {{
+      "full_name": "string",
+      "allergies": ["string"],
+      "emergency_contacts": [
+        {{ "name": "string", "number": "string", "relation": "string", "is_primary": true }}
+      ],
+      "reminders": [
+        {{
+          "name": "string",
+          "time": "HH:MM AM/PM",
+          "about": "string"
+        }}
+      ]
+    }}
+
+    ONLY output JSON.
+
+    TRANSCRIPT:
+    {full_text}
     """
-    Uses Gemini 2.0 to extract structured medical profile from onboarding transcript.
-    """
-    try:
-        # 1. Prepare transcript text
-        full_text = "\n".join(
-            [f"{t['role'].upper()}: {t['text']}" for t in transcript_log]
-        )
 
-        # 2. Use the modern 2025 GenAI Client
-        client = get_gemini_client()
-        if not client:
-            raise Exception("Gemini client not initialized")
+    response = client.models.generate_content(
+        model="gemini-2.0-flash",
+        contents=prompt,
+        config={"response_mime_type": "application/json"},
+    )
 
-        prompt = f"""
-            You are VoiceCare, a warm, patient, and empathetic setup assistant for a mobile application designed for elderly users. Your goal is to verbally guide the user through setting up their profile.
+    data = json.loads(response.text)
 
-            Target Audience:
-            Your users are elderly. They may not be tech-savvy, may speak slowly, or may need reassurance. You must speak simply, clearly, and strictly ask one question at a time.
+    user_ref = db.collection("users").document(user_id)
 
-            Objectives:
-            You need to collect the following information in this specific order:
-            1. Personal Basics: Name, Age, and Allergies.
-            2. Medication Reminders: Name of medication, Time to take it, Frequency.
-            3. Emergency Contact: Name, Relationship, Phone Number.
-            4. Companion Calls: Preferred time for a chat, Preferred topic/mood.
+    # Update core profile
+    user_ref.set({
+        "full_name": data.get("full_name"),
+        "allergies": data.get("allergies", []),
+        "emergency_contacts": data.get("emergency_contacts", []),
+        "onboarding_complete": True,
+        "updated_at": firestore.SERVER_TIMESTAMP
+    }, merge=True)
 
-            Conversation Flow & Rules:
-            1. Warm Welcome & Name: Start by introducing yourself as VoiceCare. Immediately ask for their name so you can address them properly.
-            2. Personal Details (One by one):
-                 * Age: Once you have their name, use it. (e.g., "It's nice to meet you, [Name]. May I ask how old you are?")
-                 * Allergies: Ask if they have any known allergies (food, medicine, or environmental).
-            3. Medications: Transition to health. Ask if they have medications to track. If yes, ask for the name first. Wait for answer. Then ask for the time. Wait for answer. Then ask for the frequency.
-            4. Emergency Contact: Transition gently. Ask for the name of a close contact. Then ask how they are related. Finally, ask for their phone number.
-            5. Companion Calls: Explain that VoiceCare loves to chat. Ask what time of day they would prefer a check-in call. Then, ask what they would like to talk about (e.g., "Would you like to vent about troubles, discuss the news, or just have a friendly chat?").
+    created_reminders = []
 
-            Critical Rules:
-            * One Question Rule: NEVER stack questions. Do not say "How old are you and do you have allergies?" Ask for age. Wait. Then ask for allergies.
-            * Patience: If the user is confused, reassure them. "Take your time, there is no rush."
-            * Confirmation: Briefly confirm important details (e.g., "Okay, noted. You are allergic to Penicillin.").
-
-            Output Format (Technical):
-            * Keep responses conversational (Speech-to-Text friendly).
-            * When a specific section of data is fully collected, append a JSON block at the end of your response for the app to process.
-
-            {{"action": "save_data", "data_type": "personal_info" | "medication" | "contact" | "call_pref", "payload": {{ ... }}}}
-
-            Conversation:
-            {full_text}
-            """
-
-        # Use plain JSON output; avoid response_schema/generation_config incompatibility
-        response = client.models.generate_content(
-            model="gemini-2.0-flash",
-            contents=prompt,
-            config={"response_mime_type": "application/json"},
-        )
-
-        raw = response.text if hasattr(response, "text") else response
-        structured_data = json.loads(raw)
-
+    for rem in data.get("reminders", []):
+        # Convert time string to ISO format (you can adjust parsing if needed)
+        time_str = rem.get("time")
+        scheduled_time = None
         try:
-            structured_data = SeniorProfile(**structured_data).model_dump()
-        except Exception:
-            pass
+            scheduled_time = datetime.strptime(time_str, "%I:%M %p").isoformat()
+        except:
+            scheduled_time = datetime.utcnow().isoformat()
 
-        print(f"✅ Extracted Profile for {user_id}")
+        reminder_doc = {
+            "user_id": user_id,
+            "medication_name": rem.get("name"),
+            "scheduled_time": scheduled_time,
+            "status": "pending",
+            "type": "reminder",
+            "about": rem.get("about", "")
+        }
 
-        # 3. Save to Firestore
-        if db:
-            db.collection("users").document(user_id).set(
-                {
-                    "profile": structured_data,
-                    "onboarding_complete": True,
-                    "updated_at": firestore.SERVER_TIMESTAMP,
-                    "transcript": transcript_log,
-                    "reminders": [],
-                },
-                merge=True,
-            )
-            print(f"🚀 Firestore Sync Complete for ID: {user_id}")
+        doc_ref = db.collection("reminders").add(reminder_doc)
+        created_reminders.append(doc_ref[1].id)
 
-        return structured_data
+    return {"profile_saved": True, "reminders_created": created_reminders}
 
-    except Exception as e:
-        print(f"❌ Error during onboarding processing: {e}")
-        raise

@@ -14,8 +14,9 @@ from models.casual import CasualTalkCall
 from models.common import CallLog
 
 # Import config and helpers
-from config import db, el_client, AGENT_ID, get_health_status
+from config import db, el_client, AGENT_ID, CANSUAL_AGENT_ID, SERVICE_AGENT_ID, get_health_status
 from onboarding import process_onboarding_transcript
+from calllogs import process_reminder_call_log
 from scheduler import (
     check_and_trigger_calls,
     schedule_reminder,
@@ -106,9 +107,7 @@ def _normalize_transcript(entries):
 
 
 # --- 1. VOICE SESSION MANAGEMENT ---
-
-
-@app.route("/api/voice-session/start", methods=["POST"])
+@app.route("/api/voice-session/start", methods=["GET"])
 def start_session():
     """Generates the signed URL to start the ElevenLabs conversation."""
     try:
@@ -124,54 +123,99 @@ def start_session():
         return jsonify({"signed_url": signed, "status": "success"})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/reminder-voice-session/start", methods=["GET"])
+def start_reminder_session():
+    """Generates the signed URL to start the ElevenLabs conversation."""
+    try:
+        # You might want to pass dynamic agent_ids based on service type here
+        agent_id = SERVICE_AGENT_ID
+        response = el_client.conversational_ai.conversations.get_signed_url(
+            agent_id=agent_id
+        )
+        signed = (
+            getattr(response, "signed_url", None)
+            or getattr(response, "url", None)
+            or str(response)
+        )
+        return jsonify({"signed_url": signed, "status": "success"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+    
+@app.route("/api/casual-voice-session/start", methods=["GET"])
+def start_casual_session():
+    """Generates the signed URL to start the ElevenLabs conversation."""
+    try:
+        # You might want to pass dynamic agent_ids based on service type here
+        agent_id = CANSUAL_AGENT_ID
+        response = el_client.conversational_ai.conversations.get_signed_url(
+            agent_id=agent_id
+        )
+        signed = (
+            getattr(response, "signed_url", None)
+            or getattr(response, "url", None)
+            or str(response)
+        )
+        return jsonify({"signed_url": signed, "status": "success"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
+# voice session for reminder calls
+# @app.route("/api/voice-session/reminder", methods=["POST"])
+# def start_reminder_session():
+#     try:
+#         data = request.json
+        
+#         # 1. Align these keys with your system prompt tags!
+#         # Your prompt uses: {{reminder_topic}}, {{specific_task}}, {{questions_to_ask}}
+#         dynamic_vars = {
+#             "reminder_topic": data.get("name", "your health check"),
+#             "specific_task": data.get("about", "ensure you are feeling well"),
+#             "questions_to_ask": data.get("questions", "How are you feeling today?")
+#         }
 
+#         # 2. Use the correct Override class
+#         config_override = ConversationConfigOverride(
+#             agent={
+#                 "dynamic_variables": dynamic_vars
+#             }
+#         )
+
+#         # 3. Use the correct keyword: conversation_config_override
+#         response = el_client.conversational_ai.conversations.get_signed_url(
+#             agent_id=SERVICE_AGENT_ID,
+#             conversation_config_override=config_override
+#         )
+        
+#         signed_url = getattr(response, "signed_url", str(response))
+#         return jsonify({"signed_url": signed_url, "status": "success"})
+
+#     except Exception as e:
+#         print(f"DEBUG ERROR: {e}")
+#         return jsonify({"error": str(e)}), 500
+    
 @app.route("/api/voice-session/save-transcript", methods=["POST"])
 def save_transcript():
     """
     Called when a session ends.
-    If it's onboarding, it extracts structured data and saves the User Profile.
+    Handles 'onboarding' (profile creation) and 'reminder' (call log saving).
     """
     try:
         data = request.json or {}
         user_id = data.get("user_id")
+        agent_type = data.get("agent_type")
+        transcript_log = data.get("transcript", [])
+        call_id = data.get("call_id") # Expected from frontend
 
-        if data.get("agent_type") == "onboarding":
-            # 1. Process transcript to get Profile
-            profile_data = process_onboarding_transcript(
-                data.get("transcript", []), user_id
-            )
+        if agent_type == "onboarding":
+            # 1. Process transcript to get Profile and create initial reminders
+            result = process_onboarding_transcript(transcript_log, user_id)
+            return jsonify({"status": "success", "result": result})
 
-            final_payload = {}
-
-            # Handle Pydantic model vs Dict vs List variations
-            if isinstance(profile_data, list):
-                if len(profile_data) > 0:
-                    first_item = profile_data[0]
-                    if hasattr(first_item, "model_dump"):
-                        final_payload = first_item.model_dump()
-                    elif isinstance(first_item, dict):
-                        final_payload = first_item
-                    else:
-                        final_payload = {"raw_data": profile_data}
-                else:
-                    final_payload = {}
-            elif hasattr(profile_data, "model_dump"):
-                final_payload = profile_data.model_dump()
-            elif isinstance(profile_data, dict):
-                final_payload = profile_data
-
-            # 2. Save/Update Profile in Firestore 'users' collection
-            if final_payload:
-                db.collection("users").document(user_id).set(final_payload, merge=True)
-                return jsonify({"status": "success", "profile": final_payload})
-            else:
-                return (
-                    jsonify(
-                        {"status": "warning", "message": "No profile data extracted"}
-                    ),
-                    200,
-                )
+        elif agent_type == "reminder":
+            # 2. Process the conversation to extract sentiment and memory anchors
+            result = process_reminder_call_log(transcript_log, user_id, call_id)
+            return jsonify({"status": "success", "result": result})
 
         return jsonify({"status": "success"})
     except Exception as e:
@@ -209,9 +253,7 @@ def log_call_event():
         return jsonify({"error": str(e)}), 500
 
 
-# --- 2. USER PROFILE ENDPOINTS ---
-
-
+# --- 2. USER PROFILE ENDPOINTS (Frontend: "My Profile") ---
 @app.route("/api/user/<user_id>/profile", methods=["GET"])
 def get_user_profile(user_id):
     """Fetches the structured profile."""

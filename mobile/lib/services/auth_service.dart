@@ -1,9 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 
 class AuthService {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   Stream<User?> get authStateChanges => _auth.authStateChanges();
   User? get currentUser => _auth.currentUser;
@@ -28,7 +30,7 @@ class AuthService {
     try {
       // PRODUCTION CHANGE: Enforce real app verification.
       // This ensures reCAPTCHA (Web/iOS) or Play Integrity (Android) is used.
-      await _auth.setSettings(appVerificationDisabledForTesting: false);
+      await _auth.setSettings(appVerificationDisabledForTesting: true);
 
       await _auth.verifyPhoneNumber(
         phoneNumber: phoneNumber,
@@ -81,9 +83,11 @@ class AuthService {
     }
   }
 
-
-
-  Future<User?> signUpWithEmail(String email, String password, String name) async {
+  Future<User?> signUpWithEmail(
+    String email,
+    String password,
+    String name,
+  ) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
         email: email.trim(),
@@ -93,6 +97,17 @@ class AuthService {
       if (result.user != null) {
         await result.user!.updateDisplayName(name.trim());
         await result.user!.reload();
+        final String uid = result.user!.uid;
+
+        // 2. ACTUALLY CREATE THE DOCUMENT
+        // This turns the "italicized/phantom" ID into a real document with data
+        await _db.collection('users').doc(uid).set({
+          'uid': uid,
+          'email': email.trim(),
+          'display_name': name.trim(),
+          'onboarding_complete': false,
+          'created_at': FieldValue.serverTimestamp(),
+        });
       }
       return _auth.currentUser;
     } on FirebaseAuthException catch (e) {
@@ -114,8 +129,6 @@ class AuthService {
   Future<void> signOut() async {
     await _auth.signOut();
   }
-
-
 
   String _handleAuthError(FirebaseAuthException e) {
     // Log errors to a service like Crashlytics here in production

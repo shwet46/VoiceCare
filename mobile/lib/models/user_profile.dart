@@ -1,9 +1,10 @@
 class UserProfile {
   final String? fullName;
-  final String? allergies;
-  final String? medications;
-  final String? carePreferences;
-  final String? healthConcerns;
+  final List<String>? allergies;
+  final List<String>? medications;
+  final List<String>? carePreferences;
+  final List<String>? healthConcerns;
+  final List<Map<String, dynamic>>? emergencyContactsSummary;
 
   UserProfile({
     this.fullName,
@@ -14,19 +15,24 @@ class UserProfile {
     this.emergencyContactsSummary,
   });
 
-  final List<Map<String, dynamic>>? emergencyContactsSummary;
-
   factory UserProfile.fromMap(Map<String, dynamic> map) {
     return UserProfile(
       fullName: map['full_name'] as String?,
-      allergies: map['allergies'] as String?,
-      medications: map['medications'] as String?,
-      carePreferences: map['care_preferences'] as String?,
-      healthConcerns: map['health_concerns'] as String?,
+      // Use a helper or cast to List<String>
+      allergies: _toList(map['allergies']),
+      medications: _toList(map['medications']),
+      carePreferences: _toList(map['care_preferences']),
+      healthConcerns: _toList(map['health_concerns']),
       emergencyContactsSummary: (map['emergency_contacts_summary'] as List?)
           ?.map((e) => Map<String, dynamic>.from(e))
           .toList(),
     );
+  }
+
+  // Helper function to safely cast dynamic lists from Firestore
+  static List<String>? _toList(dynamic value) {
+    if (value == null) return null;
+    return List<String>.from(value as List);
   }
 
   Map<String, dynamic> toMap() {

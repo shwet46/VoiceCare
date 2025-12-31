@@ -2,42 +2,6 @@
   "user_name": "Shweta",
   "call_history": [
     {
-      "log_id": "LOG_010",
-      "date": "2025-12-30",
-      "time": "08:00 AM",
-      "duration": "2m 15s",
-      "status": "Successful",
-      "title": "Morning Blood Pressure Meds",
-      "summary": "Maitri took her meds and confirmed she had a glass of water.",
-      "transcript": [
-        {"role": "assistant", "text": "Good morning, Maitri! It’s a beautiful day. Are you ready for your blood pressure tablet?"},
-        {"role": "user", "text": "Oh, hello dear. Let me see... I have the strip here, but where did I put my glasses?"},
-        {"role": "assistant", "text": "Take your time. I'll wait right here. Check the side table near your lamp."},
-        {"role": "user", "text": "Ah, found them! Okay, I have the Lisinopril. One tablet, right?"},
-        {"role": "assistant", "text": "That's correct. Just one. Go ahead and take it with a full sip of water. Let me know when you've swallowed it."},
-        {"role": "user", "text": "Done. Thank you for the reminder, I almost forgot today."},
-        {"role": "assistant", "text": "You're very welcome, Maitri. Have a wonderful morning!"}
-      ]
-    },
-    {
-      "log_id": "LOG_009",
-      "date": "2025-12-29",
-      "time": "09:30 PM",
-      "duration": "10m 00s",
-      "status": "Completed",
-      "title": "Sleep Meditation",
-      "summary": "Full guided breathing session completed. User reported feeling 'lighter'.",
-      "transcript": [
-        {"role": "assistant", "text": "The day is over, Maitri. It's time to let go of any worries. Shall we start our breathing?"},
-        {"role": "user", "text": "Yes, please. My mind has been racing about the grocery list for tomorrow."},
-        {"role": "assistant", "text": "We can handle the list tomorrow. For now, close your eyes. Breathe in for four seconds... hold... and breathe out slowly."},
-        {"role": "user", "text": "That feels much better. My shoulders were so tight."},
-        {"role": "assistant", "text": "Visualize a calm lake at sunset. You are safe and supported. Your son is just a call away if you need anything."},
-        {"role": "user", "text": "I feel much lighter now. Thank you. Goodnight."},
-        {"role": "assistant", "text": "Goodnight, Maitri. Sleep peacefully."}
-      ]
-    },
-    {
       "log_id": "LOG_008",
       "date": "2025-12-29",
       "time": "08:05 PM",
@@ -46,11 +10,26 @@
       "title": "Diabetes Check",
       "summary": "Glucose was 110 mg/dL. User confirmed feeling physically well.",
       "transcript": [
-        {"role": "assistant", "text": "Hi Maitri! Just checking in for your evening glucose reading. Do you have your monitor ready?"},
-        {"role": "user", "text": "Wait a second... it's just calibrating. Okay, here we go. It says one hundred and ten."},
-        {"role": "assistant", "text": "110 is exactly where we want it to be. Great job! How are you feeling physically? Any dizziness or fatigue?"},
-        {"role": "user", "text": "No, I feel quite steady today. I had a good dinner."},
-        {"role": "assistant", "text": "That’s wonderful to hear. You can proceed with your evening insulin dose as planned. I'll log this for your doctor."}
+        {
+          "role": "assistant",
+          "text": "Hi Samarth! Just checking in for your evening glucose reading. Do you have your monitor ready?"
+        },
+        {
+          "role": "user",
+          "text": "Wait a second... it's just calibrating. Okay, here we go. It says one hundred and ten."
+        },
+        {
+          "role": "assistant",
+          "text": "110 is exactly where we want it to be. Great job! How are you feeling physically? Any dizziness or fatigue?"
+        },
+        {
+          "role": "user",
+          "text": "No, I feel quite steady today. I had a good dinner."
+        },
+        {
+          "role": "assistant",
+          "text": "That’s wonderful to hear. You can proceed with your evening insulin dose as planned. I'll log this for your doctor."
+        }
       ]
     },
     {
@@ -62,9 +41,18 @@
       "title": "Social Call: Son",
       "summary": "User did not answer after 45 seconds of ringing. Snooze logic initiated.",
       "transcript": [
-        {"role": "assistant", "text": "[System Note: Outbound call ringing...]"},
-        {"role": "assistant", "text": "Hi Maitri, your son is hoping to chat... [No response recorded]"},
-        {"role": "assistant", "text": "I'll try you again in 15 minutes. Talk soon!"}
+        {
+          "role": "assistant",
+          "text": "[System Note: Outbound call ringing...]"
+        },
+        {
+          "role": "assistant",
+          "text": "Hi Maitri, your son is hoping to chat... [No response recorded]"
+        },
+        {
+          "role": "assistant",
+          "text": "I'll try you again in 15 minutes. Talk soon!"
+        }
       ]
     },
     {
@@ -76,11 +64,26 @@
       "title": "Lunch Vitamin",
       "summary": "User was eating; AI rescheduled for 20 minutes later.",
       "transcript": [
-        {"role": "assistant", "text": "Hi Maitri, it’s lunchtime! Don't forget your multivitamin."},
-        {"role": "user", "text": "Oh! You caught me right in the middle of my dal and rice. Can I take it after I finish?"},
-        {"role": "assistant", "text": "Of course! It's actually better to take it on a full stomach. Shall I call you back in 20 minutes to check?"},
-        {"role": "user", "text": "Yes, please do that. That would be perfect."},
-        {"role": "assistant", "text": "Understood. Enjoy your meal, Maitri. I'll speak to you shortly."}
+        {
+          "role": "assistant",
+          "text": "Hi Maitri, it’s lunchtime! Don't forget your multivitamin."
+        },
+        {
+          "role": "user",
+          "text": "Oh! You caught me right in the middle of my dal and rice. Can I take it after I finish?"
+        },
+        {
+          "role": "assistant",
+          "text": "Of course! It's actually better to take it on a full stomach. Shall I call you back in 20 minutes to check?"
+        },
+        {
+          "role": "user",
+          "text": "Yes, please do that. That would be perfect."
+        },
+        {
+          "role": "assistant",
+          "text": "Understood. Enjoy your meal, Maitri. I'll speak to you shortly."
+        }
       ]
     },
     {
@@ -92,13 +95,34 @@
       "title": "Morning Stretching",
       "summary": "Guided shoulder and neck exercises. User reported slight stiffness.",
       "transcript": [
-        {"role": "assistant", "text": "Ready to get moving, Maitri? Let's start with some gentle shoulder rolls."},
-        {"role": "user", "text": "I'm ready, but my left side is a bit stiff today. It rained last night."},
-        {"role": "assistant", "text": "The damp weather can definitely do that. Let's be very gentle. Just lift your shoulders to your ears and roll them back slowly. One... two... three."},
-        {"role": "user", "text": "Oh, that's a bit tight... but it feels good to move."},
-        {"role": "assistant", "text": "Perfect. Now, let’s slowly tilt your head toward your right shoulder. Stop if you feel any sharp pain."},
-        {"role": "user", "text": "I'm doing it. Much better. My neck was locked up."},
-        {"role": "assistant", "text": "Excellent work. Movement is medicine! We're all done for now."}
+        {
+          "role": "assistant",
+          "text": "Ready to get moving, Maitri? Let's start with some gentle shoulder rolls."
+        },
+        {
+          "role": "user",
+          "text": "I'm ready, but my left side is a bit stiff today. It rained last night."
+        },
+        {
+          "role": "assistant",
+          "text": "The damp weather can definitely do that. Let's be very gentle. Just lift your shoulders to your ears and roll them back slowly. One... two... three."
+        },
+        {
+          "role": "user",
+          "text": "Oh, that's a bit tight... but it feels good to move."
+        },
+        {
+          "role": "assistant",
+          "text": "Perfect. Now, let’s slowly tilt your head toward your right shoulder. Stop if you feel any sharp pain."
+        },
+        {
+          "role": "user",
+          "text": "I'm doing it. Much better. My neck was locked up."
+        },
+        {
+          "role": "assistant",
+          "text": "Excellent work. Movement is medicine! We're all done for now."
+        }
       ]
     },
     {
@@ -110,11 +134,26 @@
       "title": "Morning Meds",
       "summary": "User proactive; confirmed taking meds before the call started.",
       "transcript": [
-        {"role": "assistant", "text": "Good morning, Maitri! Time for your morning—"},
-        {"role": "user", "text": "[Interrupting] I already swallowed them, dear! I beat you to it this morning."},
-        {"role": "assistant", "text": "[Laughs] You’re ahead of the curve today! Did you manage to have some breakfast with them?"},
-        {"role": "user", "text": "Yes, I had my tea and toast just ten minutes ago."},
-        {"role": "assistant", "text": "Wonderful. I'll log that as completed. Keep up that great energy!"}
+        {
+          "role": "assistant",
+          "text": "Good morning, Maitri! Time for your morning—"
+        },
+        {
+          "role": "user",
+          "text": "[Interrupting] I already swallowed them, dear! I beat you to it this morning."
+        },
+        {
+          "role": "assistant",
+          "text": "[Laughs] You’re ahead of the curve today! Did you manage to have some breakfast with them?"
+        },
+        {
+          "role": "user",
+          "text": "Yes, I had my tea and toast just ten minutes ago."
+        },
+        {
+          "role": "assistant",
+          "text": "Wonderful. I'll log that as completed. Keep up that great energy!"
+        }
       ]
     },
     {
@@ -126,12 +165,30 @@
       "title": "Anxiety Support",
       "summary": "User called AI due to shortness of breath; AI guided through grounding exercise.",
       "transcript": [
-        {"role": "user", "text": "Help... I'm feeling a bit panicked. My chest is feeling very tight and I can't catch my breath."},
-        {"role": "assistant", "text": "I'm right here with you, Maitri. You are safe. I want you to focus only on the sound of my voice. Can you tell me three things you see in the room right now?"},
-        {"role": "user", "text": "I see... my blue vase... the television... and a picture of my son."},
-        {"role": "assistant", "text": "Good. Focus on the blue of that vase. Now, let's take a slow breath through your nose. In... one, two, three. And out through your mouth... one, two, three."},
-        {"role": "user", "text": "Okay... I think the tightness is easing. I was just worried about the doctor's appointment tomorrow."},
-        {"role": "assistant", "text": "It’s natural to feel nervous, but you are prepared. I'll stay on the line until your heart rate feels normal again."}
+        {
+          "role": "user",
+          "text": "Help... I'm feeling a bit panicked. My chest is feeling very tight and I can't catch my breath."
+        },
+        {
+          "role": "assistant",
+          "text": "I'm right here with you, Maitri. You are safe. I want you to focus only on the sound of my voice. Can you tell me three things you see in the room right now?"
+        },
+        {
+          "role": "user",
+          "text": "I see... my blue vase... the television... and a picture of my son."
+        },
+        {
+          "role": "assistant",
+          "text": "Good. Focus on the blue of that vase. Now, let's take a slow breath through your nose. In... one, two, three. And out through your mouth... one, two, three."
+        },
+        {
+          "role": "user",
+          "text": "Okay... I think the tightness is easing. I was just worried about the doctor's appointment tomorrow."
+        },
+        {
+          "role": "assistant",
+          "text": "It’s natural to feel nervous, but you are prepared. I'll stay on the line until your heart rate feels normal again."
+        }
       ]
     },
     {
@@ -143,11 +200,26 @@
       "title": "Social Bridge: Son",
       "summary": "AI acted as a bridge for a family conference call.",
       "transcript": [
-        {"role": "assistant", "text": "Maitri, your son is on the line and wants to say hello. Connecting you now."},
-        {"role": "user", "text": "Hello? Beta? Can you hear me?"},
-        {"role": "assistant", "text": "[System Note: AI monitoring for safety in background... conversation continues between family members]"},
-        {"role": "user", "text": "Thank you, VoiceCare, that was a lovely chat."},
-        {"role": "assistant", "text": "My pleasure, Maitri. It’s always good to hear his voice. I’ll close the line now."}
+        {
+          "role": "assistant",
+          "text": "Maitri, your son is on the line and wants to say hello. Connecting you now."
+        },
+        {
+          "role": "user",
+          "text": "Hello? Beta? Can you hear me?"
+        },
+        {
+          "role": "assistant",
+          "text": "[System Note: AI monitoring for safety in background... conversation continues between family members]"
+        },
+        {
+          "role": "user",
+          "text": "Thank you, VoiceCare, that was a lovely chat."
+        },
+        {
+          "role": "assistant",
+          "text": "My pleasure, Maitri. It’s always good to hear his voice. I’ll close the line now."
+        }
       ]
     },
     {
@@ -159,11 +231,26 @@
       "title": "Morning Meds",
       "summary": "User slurred speech detected. System triggered automatic caregiver alert.",
       "transcript": [
-        {"role": "assistant", "text": "Good morning, Maitri. Time for your medicine. How are you feeling?"},
-        {"role": "user", "text": "I... I don't feel... every... everything is a bit... blurry... dear..."},
-        {"role": "assistant", "text": "Maitri, listen to me. I've detected that you aren't feeling well. I am calling your son and the local nurse right now. Do not get up from your chair."},
-        {"role": "user", "text": "I... I tried to walk... but..."},
-        {"role": "assistant", "text": "Please stay seated, Maitri. I am keeping this line open. Your son is being notified that you are feeling dizzy. Help is on the way."}
+        {
+          "role": "assistant",
+          "text": "Good morning, Maitri. Time for your medicine. How are you feeling?"
+        },
+        {
+          "role": "user",
+          "text": "I... I don't feel... every... everything is a bit... blurry... dear..."
+        },
+        {
+          "role": "assistant",
+          "text": "Maitri, listen to me. I've detected that you aren't feeling well. I am calling your son and the local nurse right now. Do not get up from your chair."
+        },
+        {
+          "role": "user",
+          "text": "I... I tried to walk... but..."
+        },
+        {
+          "role": "assistant",
+          "text": "Please stay seated, Maitri. I am keeping this line open. Your son is being notified that you are feeling dizzy. Help is on the way."
+        }
       ]
     }
   ]
