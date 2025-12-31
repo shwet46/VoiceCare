@@ -14,11 +14,24 @@
   It works <b>offline-first, supports multiple languages</b>, and adapts intelligently to each user.
 </p>
 
----
+
 
 <p align="center">
   <img src="assets/readme4.png" alt="VoiceCare Additional" width="full">
 </p>
+
+<samp>
+  <h3>
+    <a>
+      Read our Medium blog on VoiceCare -
+      <img src="https://raw.githubusercontent.com/github/explore/main/topics/medium/medium.png" width="15">
+      <a href="https://medium.com/@maitridalvi2004/empathetic-ai-companion-for-independent-living-95a1d1982a25">
+        Medium
+      </a>
+    </a>
+  </h3>
+</samp>
+
 
 ---
 
@@ -43,6 +56,14 @@
 
 
 <p align="center">
+	<img src="assets/readme5.png" alt="VoiceCare Demo" width="full">
+</p>
+
+<p align="center">
+
+---
+
+<p align="center">
 	<img src="assets/readme3.png" alt="VoiceCare Demo" width="full">
 </p>
 
@@ -52,18 +73,22 @@
 
 <h2 align="left">🌱 UN Sustainable Development Goals (SDGs)</h2>
 
-<div align="left">
+<p align="left">
   <b>VoiceCare aligns with the following UN Sustainable Development Goals:</b>
-</div>
+</p>
 
 <br>
 
 <details>
-  <summary>
-    <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-03.jpg" width="40" style="vertical-align:middle; border-radius:6px;">
-    <b> SDG 3 – Good Health & Well-Being</b>
+  <summary style="display: flex; align-items: center; gap: 10px;">
+    <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-03.jpg"
+         width="40"
+         style="border-radius:6px;">
+    <b>SDG 3 – Good Health & Well-Being</b>
   </summary>
+
   <br>
+
   <ul>
     <li>Early emergency detection through voice distress cues</li>
     <li>Calm, guided assistance during critical situations</li>
@@ -75,11 +100,15 @@
 <br>
 
 <details>
-  <summary>
-    <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-10.jpg" width="40" style="vertical-align:middle; border-radius:6px;">
-    <b> SDG 10 – Reduced Inequalities</b>
+  <summary style="display: flex; align-items: center; gap: 10px;">
+    <img src="https://sdgs.un.org/sites/default/files/goals/E_SDG_Icons-10.jpg"
+         width="40"
+         style="border-radius:6px;">
+    <b>SDG 10 – Reduced Inequalities</b>
   </summary>
+
   <br>
+
   <ul>
     <li>Voice-first, screen-free interaction for accessibility</li>
     <li>Multilingual support for diverse user groups</li>
@@ -87,6 +116,7 @@
     <li>Offline-first functionality for low-connectivity regions</li>
   </ul>
 </details>
+
 
 ---
 
@@ -118,32 +148,30 @@ flutter pub get
 
 ## 👥 Team members
 
-<div style="display: flex; justify-content: left; flex-wrap: wrap; gap: 40px; text-align: center; font-family: sans-serif;">
-  <div>
-    <a href="https://github.com/ojasvi004">
-      <img src="https://github.com/ojasvi004.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
-      <p><b>Ojasvi</b></p>
-    </a>
-  </div>
-  <div>
-    <a href="https://github.com/maitri707">
-      <img src="https://github.com/maitri707.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
-      <p><b>Maitri</b></p>
-    </a>
-  </div>
-  <div>
-    <a href="https://github.com/shwet46">
-      <img src="https://github.com/shwet46.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
-      <p><b>Shweta</b></p>
-    </a>
-  </div>
-  <div>
-    <a href="https://github.com/sambhandavale">
-      <img src="https://github.com/sambhandavale.png?size=120" width="100" style="border-radius: 50%; border: 2px solid #ddd;"/>
-      <p><b>Samarth</b></p>
-    </a>
-  </div>
-</div>
+<table align="center">
+  <tr>
+    <td align="center" style="padding: 20px;">
+      <img src="https://github.com/ojasvi004.png?size=120" width="80" style="border-radius:50%;"><br><br>
+      <b>Ojasvi</b><br>
+      <a href="https://github.com/ojasvi004">@ojasvi004</a>
+    </td>
+    <td align="center" style="padding: 20px;">
+      <img src="https://github.com/maitri707.png?size=120" width="80" style="border-radius:50%;"><br><br>
+      <b>Maitri</b><br>
+      <a href="https://github.com/maitri707">@maitri707</a>
+    </td>
+    <td align="center" style="padding: 20px;">
+      <img src="https://github.com/shwet46.png?size=120" width="80" style="border-radius:50%;"><br><br>
+      <b>Shweta</b><br>
+      <a href="https://github.com/shwet46">@shwet46</a>
+    </td>
+    <td align="center" style="padding: 20px;">
+      <img src="https://github.com/sambhandavale.png?size=120" width="80" style="border-radius:50%;"><br><br>
+      <b>Samarth</b><br>
+      <a href="https://github.com/sambhandavale">@sambhandavale</a>
+    </td>
+  </tr>
+</table>
 
 ---
 
