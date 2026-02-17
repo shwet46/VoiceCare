@@ -10,15 +10,14 @@ import 'package:voicecare/screens/main_page.dart';
 import 'package:voicecare/utils/constants.dart';
 import 'package:voicecare/widgets/voicecare_header.dart';
 
-class SetupScreen extends StatefulWidget {
-  const SetupScreen({super.key});
+class AICallScreen extends StatefulWidget {
+  const AICallScreen({super.key});
 
   @override
-  State<SetupScreen> createState() => _SetupScreenState();
+  State<AICallScreen> createState() => _AICallState();
 }
 
-class _SetupScreenState extends State<SetupScreen>
-    with TickerProviderStateMixin {
+class _AICallState extends State<AICallScreen> with TickerProviderStateMixin {
   late ConversationClient _client;
   final List<Map<String, String>> _transcript = [];
   final ScrollController _scrollController = ScrollController();
@@ -107,12 +106,12 @@ class _SetupScreenState extends State<SetupScreen>
             await _saveTranscriptToBackend();
 
             // 4. Now navigate
-            if (mounted) {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const MainScreen()),
-              );
-            }
+            // if (mounted) {
+            //   Navigator.pushReplacement(
+            //     context,
+            //     MaterialPageRoute(builder: (context) => const MainScreen()),
+            //   );
+            // }
           }
         },
 
@@ -144,11 +143,13 @@ class _SetupScreenState extends State<SetupScreen>
       await _client.endSession();
       return;
     }
+
     final String? baseUrl = dotenv.env['BACKEND_URL'];
+
     setState(() => _isStarting = true);
 
     // Your specific API Endpoint
-    String apiUrl = '$baseUrl/api/voice-session/start';
+    String apiUrl = '$baseUrl/api/casual-voice-session/start';
     try {
       final response = await http
           .get(Uri.parse(apiUrl))

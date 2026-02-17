@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:voicecare/models/user_profile.dart';
 import 'package:voicecare/services/profile_service.dart';
@@ -35,11 +36,23 @@ class _OnboardingFormPageState extends State<OnboardingFormPage> {
     if (!_formKey.currentState!.validate()) return;
     setState(() => _saving = true);
 
+    List<String> _parseInput(String input) {
+      if (input.trim().isEmpty) return [];
+      return input
+          .split(',')
+          .map((e) => e.trim())
+          .where((e) => e.isNotEmpty)
+          .toList();
+    }
+
     final profile = UserProfile(
-      allergies: _allergiesController.text.trim(),
-      medications: _medicationsController.text.trim(),
-      carePreferences: _carePreferencesController.text.trim(),
-      healthConcerns: _healthConcernsController.text.trim(),
+      // fullName is likely required by your model;
+      // you can pass null or use the Auth display name if available
+      fullName: FirebaseAuth.instance.currentUser?.displayName,
+      allergies: _parseInput(_allergiesController.text),
+      medications: _parseInput(_medicationsController.text),
+      carePreferences: _parseInput(_carePreferencesController.text),
+      healthConcerns: _parseInput(_healthConcernsController.text),
     );
 
     await ProfileService().updateUserProfile(profile);

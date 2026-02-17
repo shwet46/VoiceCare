@@ -46,7 +46,8 @@ try:
 
     # Using the single ID provided in your .env for all agent types
     ONBOARDING_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
-    SERVICE_AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
+    SERVICE_AGENT_ID = os.getenv("ELEVENLABS_REMINDER_AGENT_ID")
+    CANSUAL_AGENT_ID = os.getenv("ELEVENLABS_CASUAL_AGENT_ID")
     AGENT_ID = os.getenv("ELEVENLABS_AGENT_ID")
 
     print("✓ ElevenLabs initialized")

@@ -1,5 +1,9 @@
+import 'dart:developer';
+
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:voicecare/screens/aicall_screen.dart';
 import 'package:voicecare/widgets/voicecare_app_bar.dart';
 import 'package:voicecare/screens/sos_page.dart';
 import 'package:voicecare/screens/profile_page.dart';
@@ -23,6 +27,26 @@ class _MainScreenState extends State<MainScreen> {
     CallLogScreen(),
     ProfilePage(),
   ];
+
+  Future<void> getDeviceToken() async {
+    // 1. Request permission (Essential for iOS)
+    NotificationSettings settings = await FirebaseMessaging.instance
+        .requestPermission();
+
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      // 2. Retrieve the token
+      String? token = await FirebaseMessaging.instance.getToken();
+
+      // 3. Print it to your console so you can copy it for Postman
+      log("Registration Token: $token");
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getDeviceToken();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +95,14 @@ class _MainScreenState extends State<MainScreen> {
             Positioned(
               top: 10,
               child: GestureDetector(
-                onTap: () => setState(() => _currentIndex = 2),
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const AICallScreen(),
+                    ),
+                  );
+                },
                 child: Container(
                   width: 100,
                   height: 100,

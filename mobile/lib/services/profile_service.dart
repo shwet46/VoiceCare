@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:voicecare/models/user_profile.dart';
@@ -58,6 +60,27 @@ class ProfileService {
     } catch (e) {
       print("Update Error: $e");
       rethrow;
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> fetchUserReminders() async {
+    try {
+      final user = _auth.currentUser;
+      if (user == null) return [];
+
+      final querySnapshot = await _firestore
+          .collection('reminders')
+          .where('user_id', isEqualTo: user.uid)
+          // Updated to 'pending' to match your screenshot
+          .where('status', isEqualTo: 'pending')
+          .get();
+
+      return querySnapshot.docs
+          .map((doc) => {'id': doc.id, ...doc.data()})
+          .toList();
+    } catch (e) {
+      log("Reminder Fetch Error: $e");
+      return [];
     }
   }
 }

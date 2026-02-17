@@ -34,23 +34,29 @@ class NormalTalkConfig(BaseModel):
 
 # --- THE MAIN PROFILE MODEL ---
 
-class SeniorProfile(BaseModel):
-    """The master profile schema Gemini 2.0 will populate"""
+class Reminder(BaseModel):
     model_config = ConfigDict(extra="forbid")
-    
-    full_name: Optional[str] = Field(default=None, description="The senior citizen's full name")
-    onboarding_type: Optional[str] = Field(default="self", description="Was this 'self' or a 'caregiver'?")
-    
-    # Service Lists
-    medication_reminders: List[MedicationReminder] = Field(default_factory=list, description="List of extracted medication schedules")
-    emergency_contacts: List[EmergencyContact] = Field(default_factory=list, description="List of emergency contacts")
-    companionship_config: Optional[NormalTalkConfig] = Field(default=None, description="Preferences for casual talks")
+    name: str = Field(description="Name of the medication or task")
+    type: str = Field(description="'medication', 'companion', or 'appointment'")
+    time: str = Field(description="Time in HH:MM AM/PM format")
+    date: Optional[str] = Field(default=None, description="YYYY-MM-DD for one-time events")
+    frequency: str = Field(default="Daily", description="'Daily', 'Weekly', or 'Once'")
+    is_one_time: bool = Field(default=False)
+    about: Optional[str] = Field(default=None, description="Additional context or purpose")
 
-    # General Metadata
-    allergies: List[str] = Field(default_factory=list, description="List of any reported allergies")
-    medications: List[str] = Field(default_factory=list, description="Simple list of medication names (e.g. Aspirin)")
-    language_preference: str = Field(default="english", description="Preferred language for interactions (e.g. English, Hindi)")
-    onboarding_status: str = Field(default="completed", description="Current status: 'completed' or 'in_progress'")
+class EmergencyContact(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    name: str
+    number: str
+    relation: str
+    is_primary: bool = True
+
+class SeniorProfile(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+    full_name: Optional[str] = None
+    reminders: List[Reminder] = []
+    emergency_contacts: List[EmergencyContact] = []
+    allergies: List[str] = []
 
 class OnboardingCall(BaseModel):
     """Structured record of an onboarding conversation for Firestore logs"""
